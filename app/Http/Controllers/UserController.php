@@ -12,29 +12,29 @@ class UserController extends Controller
     // تسجيل الدخول
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
             return redirect()->intended('/dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'بيانات الدخول غير صحيحة.',
-        ])->onlyInput('email');
+        return back()
+            ->with('step', 'login')
+            ->withErrors(['email' => 'بيانات الدخول غير صحيحة.',])
+            ->onlyInput('email');
     }
 
     // تسجيل الخروج
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('login');
     }
 
     public function updateRole(Request $request, User $user)
@@ -61,7 +61,7 @@ class UserController extends Controller
         }
 
         $validated = $request->validate([
-            'name'  => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
         ]);
 
@@ -75,73 +75,118 @@ class UserController extends Controller
     }
 
     // الخطوة 1: إرسال كود مكون من 4 أرقام للإيميل
-public function sendResetCode(Request $request)
-{
-    $request->validate(['email' => 'required|email']);
+    public function sendResetCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
 
-    $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
-    if (!$user) {
-        return back()->withErrors(['email' => 'لم يتم العثور على هذا البريد الإلكتروني.']);
+        if (!$user) {
+            return back()
+                ->with('step', 'email')
+                ->withErrors([
+                    'email' => 'لم يتم العثور على هذا البريد الإلكتروني.',
+                ])
+                ->onlyInput('email');
+        }
+
+        $code = rand(1000, 9999);
+
+        $user->update([
+            'reset_code' => $code,
+            'reset_code_expires_at' => now()->addMinutes(10),
+        ]);
+
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                "رمز إعادة تعيين كلمة المرور الخاص بك هو: {$code}\nصالح لمدة 10 دقائق.",
+                function ($message) use ($user) {
+                    $message->to($user->email)
+                        ->subject('رمز إعادة تعيين كلمة المرور - 6Degrees');
+                }
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error(
+                'فشل إرسال رمز إعادة التعيين: ' . $e->getMessage()
+            );
+
+            return back()
+                ->with('step', 'email')
+                ->withErrors([
+                    'email' => 'حدث خطأ أثناء إرسال البريد، حاول لاحقًا.',
+                ])
+                ->onlyInput('email');
+        }
+
+        return back()
+            ->with([
+                'step'   => 'code',
+                'status' => 'تم إرسال الرمز إلى بريدك الإلكتروني.',
+                'email'  => $request->email,
+            ]);
     }
-
-    $code = rand(1000, 9999);
-
-    $user->update([
-        'reset_code' => $code,
-        'reset_code_expires_at' => now()->addMinutes(10),
-    ]);
-
-    try {
-        \Illuminate\Support\Facades\Mail::raw(
-            "رمز إعادة تعيين كلمة المرور الخاص بك هو: {$code}\nصالح لمدة 10 دقائق.",
-            function ($message) use ($user) {
-                $message->to($user->email)->subject('رمز إعادة تعيين كلمة المرور - 6Degrees');
-            }
-        );
-    } catch (\Exception $e) {
-        \Illuminate\Support\Facades\Log::error('فشل إرسال رمز إعادة التعيين: ' . $e->getMessage());
-
-        return back()->withErrors(['email' => 'حدث خطأ أثناء إرسال البريد، حاول لاحقًا.']);
-    }
-
-    return back()->with(['status' => 'تم إرسال الرمز إلى بريدك الإلكتروني.', 'email' => $request->email]);
-}
 
     // الخطوة 2: التحقق من الكود
     public function verifyResetCode(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'code'  => 'required|digits:4',
+            'code' => 'required|digits:4',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || $user->reset_code !== $request->code) {
-            return back()->withErrors(['code' => 'الرمز غير صحيح.'])->with('email', $request->email);
+        if (!$user || $user->reset_code != $request->code) {
+            return back()
+                ->with('step', 'code')
+                ->with('email', $request->email)
+                ->withErrors([
+                    'code' => 'الرمز غير صحيح.',
+                ]);
         }
 
         if (now()->greaterThan($user->reset_code_expires_at)) {
-            return back()->withErrors(['code' => 'انتهت صلاحية الرمز، حاولي إرسال رمز جديد.'])->with('email', $request->email);
+            return back()
+                ->with('step', 'code')
+                ->with('email', $request->email)
+                ->withErrors([
+                    'code' => 'انتهت صلاحية الرمز، أرسل رمزًا جديدًا.',
+                ]);
         }
 
-        return back()->with(['codeVerified' => true, 'email' => $request->email, 'code' => $request->code]);
+        return back()
+            ->with([
+                'step'  => 'password',
+                'email' => $request->email,
+                'code'  => $request->code,
+            ]);
     }
 
     // الخطوة 3: حفظ كلمة المرور الجديدة
     public function resetPasswordWithCode(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
-            'code'     => 'required|digits:4',
+            'email' => 'required|email',
+            'code' => 'required|digits:4',
             'password' => 'required|min:6|confirmed',
         ]);
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || $user->reset_code !== $request->code || now()->greaterThan($user->reset_code_expires_at)) {
-            return back()->withErrors(['password' => 'حدث خطأ، حاولي مرة أخرى من البداية.']);
+        if (
+            !$user ||
+            $user->reset_code != $request->code ||
+            now()->greaterThan($user->reset_code_expires_at)
+        ) {
+            return back()
+                ->with('step', 'password')
+                ->with('email', $request->email)
+                ->with('code', $request->code)
+                ->withErrors([
+                    'password' => 'حدث خطأ، حاول مرة أخرى من البداية.',
+                ]);
         }
 
         $user->update([
@@ -150,6 +195,7 @@ public function sendResetCode(Request $request)
             'reset_code_expires_at' => null,
         ]);
 
-        return redirect('/login')->with('status', 'تم تحديث كلمة المرور بنجاح، يمكنك تسجيل الدخول الآن.');
+        return redirect('/login')
+            ->with('status', 'تم تحديث كلمة المرور بنجاح، يمكنك تسجيل الدخول الآن.');
     }
 }

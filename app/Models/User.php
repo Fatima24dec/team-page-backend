@@ -17,6 +17,13 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'phone',
+        'department',
+        'bio',
+        'photo',
+        'status',
+        'reset_code',
+        'reset_code_expires_at',
     ];
 
     protected $hidden = [
@@ -30,12 +37,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-
-    public function teamMember()
-    {
-        return $this->hasOne(TeamMember::class);
     }
 
     public function isAdmin(): bool

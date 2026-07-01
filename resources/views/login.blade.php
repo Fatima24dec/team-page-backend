@@ -2,18 +2,25 @@
     $initialSection = 'loginSection';
     $initialStep = 'stepEmail';
 
-    if (session('codeVerified')) {
-        $initialSection = 'forgotSection';
-        $initialStep = 'stepNewPassword';
-    } elseif ($errors->has('code') || session('status')) {
-        $initialSection = 'forgotSection';
-        $initialStep = 'stepCode';
-    } elseif ($errors->has('email') && old('email')) {
-        $initialSection = 'forgotSection';
-        $initialStep = 'stepEmail';
-    } elseif (request()->is('forgot_password')) {
-        $initialSection = 'forgotSection';
-        $initialStep = 'stepEmail';
+    switch (session('step')) {
+        case 'login':
+            $initialSection = 'loginSection';
+            break;
+
+        case 'email':
+            $initialSection = 'forgotSection';
+            $initialStep = 'stepEmail';
+            break;
+
+        case 'code':
+            $initialSection = 'forgotSection';
+            $initialStep = 'stepCode';
+            break;
+
+        case 'password':
+            $initialSection = 'forgotSection';
+            $initialStep = 'stepNewPassword';
+            break;
     }
 @endphp
 <!DOCTYPE html>

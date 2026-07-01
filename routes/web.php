@@ -10,18 +10,8 @@ Route::get('/', function () {
 });
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', function () {
-        return view('login');
-    });
-
-    Route::get('/forgot_password', function () {
-        return view('login');
-    });
-
-    Route::get('/reset_password', function () {
-        return view('login');
-    })->name('password.reset');
-
+    Route::get('/login', fn () => view('login'))->name('login');
+    Route::get('/forgot_password', fn () => view('login'));
     Route::post('/login', [UserController::class, 'login'])->name('login.submit');
     Route::post('/forgot_password', [UserController::class, 'sendResetLink'])->name('password.email');
     Route::post('/reset_password', [UserController::class, 'resetPassword'])->name('password.update');

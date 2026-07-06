@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone');
             $table->string('department')->nullable();
+            $table->string('position')->nullable();
             $table->text('bio')->nullable();
             $table->string('photo')->nullable();
             $table->boolean('status')->default(true);

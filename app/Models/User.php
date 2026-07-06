@@ -19,6 +19,7 @@ class User extends Authenticatable
         'role',
         'phone',
         'department',
+        'position',
         'bio',
         'photo',
         'status',

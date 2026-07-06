@@ -9,86 +9,70 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // تسجيل الدخول
     public function login(Request $request)
     {
         $credentials = $request->validate(['email' => 'required|email', 'password' => 'required']);
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
             return redirect()->intended('/dashboard');
         }
 
         return back()
             ->with('step', 'login')
-            ->withErrors(['email' => 'بيانات الدخول غير صحيحة.',])
+            ->withErrors(['email' => __('messages.invalid_credentials')])
             ->onlyInput('email');
     }
 
-    // تسجيل الخروج
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('login');
     }
 
     public function updateRole(Request $request, User $user)
     {
         if (!Auth::user()->isAdmin()) {
-            abort(403, 'غير مصرح لك بتغيير الصلاحيات.');
+            abort(403, __('messages.no_permission_role'));
         }
 
-        $request->validate([
-            'role' => 'required|in:admin,user',
-        ]);
+        $request->validate(['role' => 'required|in:admin,user']);
+        $user->update(['role' => $request->role]);
 
-        $user->update([
-            'role' => $request->role,
-        ]);
-
-        return back()->with('success', 'تم تحديث صلاحية المستخدم بنجاح.');
+        return back()->with('success', __('messages.role_updated'));
     }
 
     public function invite(Request $request)
     {
         if (!Auth::user()->isAdmin()) {
-            abort(403, 'غير مصرح لك بإضافة مستخدمين.');
+            abort(403, __('messages.no_permission_invite'));
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
         ]);
 
-        $validated['password'] = Hash::make(\Illuminate\Support\Str::random(32));
+        $validated['password'] = \Illuminate\Support\Str::random(32);
         $validated['role'] = 'user';
         $validated['phone'] = '';
 
         User::create($validated);
 
-        return back()->with('success', 'تمت إضافة المستخدم بنجاح. يمكنه استخدام "Forgot password" لتعيين كلمة مروره.');
+        return back()->with('success', __('messages.invite_sent'));
     }
 
-    // الخطوة 1: إرسال كود مكون من 4 أرقام للإيميل
     public function sendResetCode(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
+        $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
             return back()
                 ->with('step', 'email')
-                ->withErrors([
-                    'email' => 'لم يتم العثور على هذا البريد الإلكتروني.',
-                ])
+                ->withErrors(['email' => __('messages.email_not_found')])
                 ->onlyInput('email');
         }
 
@@ -101,39 +85,32 @@ class UserController extends Controller
 
         try {
             \Illuminate\Support\Facades\Mail::raw(
-                "رمز إعادة تعيين كلمة المرور الخاص بك هو: {$code}\nصالح لمدة 10 دقائق.",
+                __('messages.reset_code_mail_body', ['code' => $code]),
                 function ($message) use ($user) {
-                    $message->to($user->email)
-                        ->subject('رمز إعادة تعيين كلمة المرور - 6Degrees');
+                    $message->to($user->email)->subject(__('messages.reset_code_mail_subject'));
                 }
             );
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error(
-                'فشل إرسال رمز إعادة التعيين: ' . $e->getMessage()
-            );
+            \Illuminate\Support\Facades\Log::error('Reset code mail failed: ' . $e->getMessage());
 
             return back()
                 ->with('step', 'email')
-                ->withErrors([
-                    'email' => 'حدث خطأ أثناء إرسال البريد، حاول لاحقًا.',
-                ])
+                ->withErrors(['email' => __('messages.mail_send_error')])
                 ->onlyInput('email');
         }
 
-        return back()
-            ->with([
-                'step'   => 'code',
-                'status' => 'تم إرسال الرمز إلى بريدك الإلكتروني.',
-                'email'  => $request->email,
-            ]);
+        return back()->with([
+            'step'   => 'code',
+            'status' => __('messages.code_sent'),
+            'email'  => $request->email,
+        ]);
     }
 
-    // الخطوة 2: التحقق من الكود
     public function verifyResetCode(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required|digits:4',
+            'code'  => 'required|digits:4',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -142,34 +119,28 @@ class UserController extends Controller
             return back()
                 ->with('step', 'code')
                 ->with('email', $request->email)
-                ->withErrors([
-                    'code' => 'الرمز غير صحيح.',
-                ]);
+                ->withErrors(['code' => __('messages.code_incorrect')]);
         }
 
         if (now()->greaterThan($user->reset_code_expires_at)) {
             return back()
                 ->with('step', 'code')
                 ->with('email', $request->email)
-                ->withErrors([
-                    'code' => 'انتهت صلاحية الرمز، أرسل رمزًا جديدًا.',
-                ]);
+                ->withErrors(['code' => __('messages.code_expired')]);
         }
 
-        return back()
-            ->with([
-                'step'  => 'password',
-                'email' => $request->email,
-                'code'  => $request->code,
-            ]);
+        return back()->with([
+            'step'  => 'password',
+            'email' => $request->email,
+            'code'  => $request->code,
+        ]);
     }
 
-    // الخطوة 3: حفظ كلمة المرور الجديدة
     public function resetPasswordWithCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'code' => 'required|digits:4',
+            'email'    => 'required|email',
+            'code'     => 'required|digits:4',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -184,18 +155,18 @@ class UserController extends Controller
                 ->with('step', 'password')
                 ->with('email', $request->email)
                 ->with('code', $request->code)
-                ->withErrors([
-                    'password' => 'حدث خطأ، حاول مرة أخرى من البداية.',
-                ]);
+                ->withErrors(['password' => __('messages.reset_generic_error')]);
         }
 
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'reset_code' => null,
             'reset_code_expires_at' => null,
         ]);
 
-        return redirect('/login')
-            ->with('status', 'تم تحديث كلمة المرور بنجاح، يمكنك تسجيل الدخول الآن.');
+        return redirect('/login')->with([
+            'status'        => __('messages.password_updated'),
+            'reset_success' => true,
+        ]);
     }
 }

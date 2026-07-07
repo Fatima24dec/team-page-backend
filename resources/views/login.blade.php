@@ -26,7 +26,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6Degrees</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <style>
+        * {
+    font-family: "Mona-Sans Regular", sans-serif;
+}
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
@@ -324,6 +329,12 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        @media (max-width: 900px) {
+    .canvas-panel {
+        display: none;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -348,7 +359,7 @@
                     <h1>{{ __('messages.welcome_back') }}</h1>
                     <p class="subtitle">{{ __('messages.sign_in_subtitle') }}</p>
 
-                    @if ($errors->has('email') && old('email') && request()->is('login'))
+                    @if ($errors->has('email') && session('step') === 'login')
                         <div class="error-banner">
                             <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                             <span>{{ $errors->first('email') }}</span>
@@ -377,7 +388,7 @@
                         <h1>{{ __('messages.forgot_password_title') }}</h1>
                         <p class="subtitle">{{ __('messages.forgot_password_subtitle') }}</p>
 
-                        @if ($errors->has('email') && request()->is('send_reset_code'))
+                        @if ($errors->has('email') && session('step') === 'email')
                             <div class="error-banner">
                                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                                 <span>{{ $errors->first('email') }}</span>
@@ -400,14 +411,14 @@
                         <h1>{{ __('messages.enter_code') }}</h1>
                         <p class="subtitle">{{ __('messages.enter_code_subtitle') }}</p>
 
-                        @if (session('status') && request()->is('send_reset_code'))
+                        @if (session('status') && session('step') === 'code')
                             <div class="success-banner">
                                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                 <span>{{ session('status') }}</span>
                             </div>
                         @endif
 
-                        @if ($errors->has('code') && request()->is('verify_reset_code'))
+                       @if ($errors->has('code') && session('step') === 'code')
                             <div class="error-banner">
                                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                                 <span>{{ $errors->first('code') }}</span>
@@ -431,7 +442,7 @@
                         <h1>{{ __('messages.new_password') }}</h1>
                         <p class="subtitle">{{ __('messages.new_password_subtitle') }}</p>
 
-                        @if ($errors->has('password') && request()->is('reset_password'))
+                       @if ($errors->has('password') && session('step') === 'password')
                             <div class="error-banner">
                                 <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                                 <span>{{ $errors->first('password') }}</span>

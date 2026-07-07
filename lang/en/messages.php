@@ -68,4 +68,9 @@ return [
     'my_data' => 'My profile',
     'remove_photo' => 'Remove current photo',
     'confirm_role_change' => 'Are you sure you want to make :name a :role?',
+    'no_changes' => 'No changes were made.',
+'invalid_credentials' => 'Invalid email or password.',
+'email_not_found' => 'This email is not registered in our system.',
+'field_required' => 'This field is required', 
+'confirm' => 'Confirm',
 ];

@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.dashboard') }} - 6Degrees</title>
-
+<link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
     <style>
+        * {
+    font-family: "Mona-Sans Regular", sans-serif;
+}
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -190,7 +194,7 @@
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .section-title { font-size: 28px; font-weight: 400; margin-bottom: 8px; font-family: 'mona-sans regular', sans-serif; }
-        .section-sub { color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 24px; font-family: "Mona-Sans Regular", sans-serif;}
+        .section-sub { color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 24px; font-family: "Mona-Sans Regular", sans-serif; }
 
         .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
 
@@ -243,7 +247,6 @@
             gap: 6px;
             text-align: start;
             padding: 6px 4px;
-            
         }
 
         .avatar {
@@ -276,26 +279,30 @@
         .member-info p {
             font-size: 14px;
             color: rgba(255,255,255,0.70);
-            font-weight: 600;
+            font-weight: 400;
             font-family: "Mona-Sans Regular", sans-serif;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 2px;
         }
 
-        .member-meta { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.6; font-family: "Mona-Sans Regular", sans-serif; }
-        .member-meta .meta-label { color: rgba(255,255,255,0.4); font-weight: 500; font-family: "Mona-Sans Regular", sans-serif; }
+        .member-meta { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; font-family: "Mona-Sans Regular", sans-serif; font-weight: 400;}
+        .member-meta .meta-label { color: rgba(255, 255, 255, 0.70); font-weight: 600; font-family: "Mona-Sans Regular", sans-serif; }
 
         .member-bio {
             font-size: 12px;
-            color: rgba(255,255,255,0.55);
+            color: rgba(255,255,255,0.4);
             line-height: 1.5;
             font-style: italic;
             font-family: "Mona-Sans Regular", sans-serif;
+            font-weight: 400;
         }
 
         .contact-actions {
             display: flex;
             gap: 8px;
             padding-top: 10px;
-            margin-top: 4px;
+            margin-top: auto;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -333,23 +340,22 @@
             left: auto;
         }
 
+.card-menu-trigger {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(1,8,34,0.5);
+    color: rgba(255,255,255,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+}
 
-        .card-menu-trigger {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(1,8,34,0.5);
-            color: rgba(255,255,255,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        .card-menu-trigger:hover { background: rgba(255,255,255,0.15); color: #fff; }
-        .card-menu-trigger svg { width: 18px; height: 18px; }
+.card-menu-trigger:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.card-menu-trigger svg { width: 14px; height: 14px; }
 
         .card-menu-dropdown {
             position: absolute;
@@ -392,7 +398,7 @@
             border: none;
             cursor: pointer;
             text-align: start;
-font-family: "Mona-Sans Regular", sans-serif;
+            font-family: "Mona-Sans Regular", sans-serif;
         }
 
         .card-menu-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
@@ -487,21 +493,35 @@ font-family: "Mona-Sans Regular", sans-serif;
 
         .modal-overlay.active { display: flex; }
 
+        /* ── Modal بعمودين ── */
         .modal-box {
             background: #0c1530;
             border: 1px solid rgba(255,255,255,0.12);
             border-radius: 16px;
             padding: 32px;
             width: 100%;
-            max-width: 420px;
+            max-width: 680px;
             max-height: 85vh;
             overflow-y: auto;
         }
 
-        .modal-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 24px; font-family: "Mona-Sans Regular", sans-serif;}
+        .modal-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 24px; font-family: "Mona-Sans Regular", sans-serif; }
+
+        .modal-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0 20px;
+        }
+
+        .modal-form-full { grid-column: 1 / -1; }
+
+        @media (max-width: 600px) {
+            .modal-form-grid { grid-template-columns: 1fr; }
+            .modal-box { max-width: 95vw; padding: 20px; }
+        }
 
         .field { margin-bottom: 16px; }
-        .field label { display: block; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; font-family: "Mona-Sans Regular", sans-serif;}
+        .field label { display: block; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; font-family: "Mona-Sans Regular", sans-serif; }
 
         .field input {
             width: 100%;
@@ -589,7 +609,7 @@ font-family: "Mona-Sans Regular", sans-serif;
             max-width: 440px;
         }
 
-        .crop-modal-box h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; font-family: "Mona-Sans Regular", sans-serif;}
+        .crop-modal-box h2 { font-size: 16px; font-weight: 600; margin-bottom: 16px; font-family: "Mona-Sans Regular", sans-serif; }
 
         .crop-canvas-wrap {
             width: 100%;
@@ -642,6 +662,7 @@ font-family: "Mona-Sans Regular", sans-serif;
         }
 
         .toast.error { color: #ff9b9b; }
+        .toast.info { color: #7fb0ff; }
         .toast svg { flex-shrink: 0; width: 15px; height: 15px; }
         .toast.hide { animation: toastOut 0.25s ease forwards; }
 
@@ -723,6 +744,70 @@ font-family: "Mona-Sans Regular", sans-serif;
             margin-bottom: 24px;
             font-family: "Mona-Sans Regular", sans-serif;
         }
+
+        .field-error {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #ff6b6b;
+    margin-top: 6px;
+    font-family: "Mona-Sans Regular", sans-serif;
+}
+
+.field-error.show { display: flex; }
+
+.field-error svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.field.has-error input {
+    border-color: rgba(255,107,107,0.5);
+}
+
+@media (max-width: 768px) {
+    main.dashboard-main {
+        padding: 24px 16px;
+    }
+
+    .top-bar-inner {
+        padding: 0 16px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .department-filter {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .section-title {
+        font-size: 22px;
+    }
+
+    .users-list .user-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    section > form {
+        flex-direction: column !important;
+    }
+
+    section > form .field {
+        width: 100% !important;
+    }
+
+    .footer {
+        padding: 14px 16px;
+    }
+}
 
     </style>
 </head>
@@ -817,7 +902,7 @@ font-family: "Mona-Sans Regular", sans-serif;
 
         <div class="grid" id="membersGrid">
             @foreach ($teamMembers as $member)
-                <div class="member-card" data-department="{{ $member->department ?? '' }}">
+                <div class="member-card" data-department="{{ strtolower(trim($member->department ?? '')) }}">
 
                     @if (Auth::user()->isAdmin() || Auth::id() === $member->id)
                         <div class="card-menu">
@@ -835,10 +920,10 @@ font-family: "Mona-Sans Regular", sans-serif;
                                 </button>
 
                                 @if (Auth::user()->isAdmin() && $member->id !== Auth::id())
-                                    <form action="{{ route('team.destroy', $member) }}" method="POST" onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
+                                    <form action="{{ route('team.destroy', $member) }}" method="POST" id="delete-form-{{ $member->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="card-menu-item danger">
+                                        <button type="button" class="card-menu-item danger" onclick="confirmDelete({{ $member->id }}, '{{ addslashes($member->name) }}')">
                                             <svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m2 0v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V6h12z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                             {{ __('messages.delete') }}
                                         </button>
@@ -942,6 +1027,7 @@ font-family: "Mona-Sans Regular", sans-serif;
 
     </main>
 
+    {{-- Modal التعديل بعمودين --}}
     <div class="modal-overlay" id="memberModal">
         <div class="modal-box">
             <form id="memberForm" method="POST" enctype="multipart/form-data">
@@ -949,7 +1035,8 @@ font-family: "Mona-Sans Regular", sans-serif;
                 @method('PUT')
                 <h2>{{ __('messages.edit_member') }}</h2>
 
-                <div class="field">
+                {{-- الصورة - كاملة العرض --}}
+                <div class="field modal-form-full">
                     <label>{{ __('messages.photo') }}</label>
                     <div class="photo-preview-wrap">
                         <div class="photo-preview-box" id="photoPreviewBox">
@@ -966,25 +1053,36 @@ font-family: "Mona-Sans Regular", sans-serif;
                     </div>
                 </div>
 
-                <div class="field">
-                    <label>{{ __('messages.name') }}</label>
-                    <input type="text" name="name" id="nameInput" required>
-                </div>
-                <div class="field">
-                    <label>{{ __('messages.title') }}</label>
-                    <input type="text" name="position" id="positionInput">
-                </div>
-                <div class="field">
-                    <label>{{ __('messages.department') }}</label>
-                    <input type="text" name="department" id="departmentInput">
-                </div>
-                <div class="field">
-                    <label>{{ __('messages.phone') }}</label>
-                    <input type="text" name="phone" id="phoneInput" required>
-                </div>
-                <div class="field">
-                    <label>{{ __('messages.bio') }}</label>
-                    <input type="text" name="bio" id="bioInput">
+                {{-- الحقول بعمودين --}}
+                <div class="modal-form-grid">
+<div class="field" id="nameField">
+    <label>{{ __('messages.name') }}</label>
+    <input type="text" name="name" id="nameInput" required>
+    <span class="field-error" id="nameError">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>{{ __('messages.field_required') }}</span>
+    </span>
+</div>
+                    <div class="field">
+                        <label>{{ __('messages.title') }}</label>
+                        <input type="text" name="position" id="positionInput">
+                    </div>
+                    <div class="field">
+                        <label>{{ __('messages.department') }}</label>
+                        <input type="text" name="department" id="departmentInput">
+                    </div>
+<div class="field" id="phoneField">
+    <label>{{ __('messages.phone') }}</label>
+    <input type="text" name="phone" id="phoneInput" required>
+    <span class="field-error" id="phoneError">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>{{ __('messages.field_required') }}</span>
+    </span>
+</div>
+                    <div class="field modal-form-full">
+                        <label>{{ __('messages.bio') }}</label>
+                        <input type="text" name="bio" id="bioInput">
+                    </div>
                 </div>
 
                 <div class="modal-actions">
@@ -1008,28 +1106,30 @@ font-family: "Mona-Sans Regular", sans-serif;
         </div>
     </div>
 
-    <footer class="footer">
-        <p>{{ __('messages.footer_text') }}</p>
-    </footer>
-
-<div class="modal-overlay" id="confirmModal">
+    <div class="modal-overlay" id="confirmModal">
         <div class="confirm-modal-box">
             <p id="confirmModalText"></p>
             <div class="modal-actions">
                 <button type="button" onclick="closeConfirmModal()">{{ __('messages.cancel') }}</button>
-                <button type="button" id="confirmModalYes">{{ __('messages.save') }}</button>
+                <button type="button" id="confirmModalYes" style="background:#ff6b6b; color:#fff;">{{ __('messages.delete') }}</button>
             </div>
         </div>
     </div>
 
-    <div id="pageLoader"><div class="loader-spinner"></div></div>
+    <footer class="footer">
+        <p>{{ __('messages.footer_text') }}</p>
+    </footer>
 
+    <div id="pageLoader"><div class="loader-spinner"></div></div>
     <div id="cursorDot"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
         const memberModal = document.getElementById('memberModal');
         const form = document.getElementById('memberForm');
+
+        // حفظ البيانات الأصلية للمقارنة
+        let originalData = {};
 
         function openEditModal(member) {
             form.reset();
@@ -1040,6 +1140,15 @@ font-family: "Mona-Sans Regular", sans-serif;
             document.getElementById('phoneInput').value = member.phone ?? '';
             document.getElementById('bioInput').value = member.bio ?? '';
             document.getElementById('removePhotoCheckbox').value = '';
+
+            // حفظ البيانات الأصلية
+            originalData = {
+                name: member.name ?? '',
+                position: member.position ?? '',
+                department: member.department ?? '',
+                phone: member.phone ?? '',
+                bio: member.bio ?? '',
+            };
 
             const previewImg = document.getElementById('photoPreviewImg');
             if (member.photo) {
@@ -1067,19 +1176,14 @@ font-family: "Mona-Sans Regular", sans-serif;
         rawInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (ev) => {
                 cropImage.src = ev.target.result;
                 cropModal.classList.add('active');
-
                 if (cropper) cropper.destroy();
                 cropper = new Cropper(cropImage, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    dragMode: 'move',
-                    background: false,
-                    autoCropArea: 1,
+                    aspectRatio: 1, viewMode: 1, dragMode: 'move',
+                    background: false, autoCropArea: 1,
                 });
             };
             reader.readAsDataURL(file);
@@ -1093,16 +1197,12 @@ font-family: "Mona-Sans Regular", sans-serif;
 
         function confirmCrop() {
             if (!cropper) return;
-
             cropper.getCroppedCanvas({ width: 400, height: 400 }).toBlob((blob) => {
                 croppedFile = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-
                 document.getElementById('removePhotoCheckbox').value = '';
-
                 const previewUrl = URL.createObjectURL(blob);
                 previewImg.src = previewUrl;
                 previewImg.style.display = 'block';
-
                 cropModal.classList.remove('active');
                 cropper.destroy();
                 cropper = null;
@@ -1124,22 +1224,78 @@ font-family: "Mona-Sans Regular", sans-serif;
             }
         }
 
-        form.addEventListener('submit', () => {
-            if (croppedFile) {
-                const dt = new DataTransfer();
-                dt.items.add(croppedFile);
+        // فحص التغييرات قبل الحفظ
+      form.addEventListener('submit', (e) => {
+    // إعادة تصفير أي أخطاء سابقة
+    document.querySelectorAll('.field-error').forEach(el => el.classList.remove('show'));
+    document.querySelectorAll('.field').forEach(el => el.classList.remove('has-error'));
 
-                let hiddenPhotoInput = form.querySelector('input[name="photo"]');
-                if (!hiddenPhotoInput) {
-                    hiddenPhotoInput = document.createElement('input');
-                    hiddenPhotoInput.type = 'file';
-                    hiddenPhotoInput.name = 'photo';
-                    hiddenPhotoInput.style.display = 'none';
-                    form.appendChild(hiddenPhotoInput);
+    let hasError = false;
+
+    const nameVal = document.getElementById('nameInput').value.trim();
+    if (!nameVal) {
+        document.getElementById('nameError').classList.add('show');
+        document.getElementById('nameField').classList.add('has-error');
+        hasError = true;
+    }
+
+    const phoneVal = document.getElementById('phoneInput').value.trim();
+    if (!phoneVal) {
+        document.getElementById('phoneError').classList.add('show');
+        document.getElementById('phoneField').classList.add('has-error');
+        hasError = true;
+    }
+
+    if (hasError) {
+        e.preventDefault();
+        return;
+    }
+
+    const currentData = {
+        name: document.getElementById('nameInput').value,
+        position: document.getElementById('positionInput').value,
+        department: document.getElementById('departmentInput').value,
+        phone: document.getElementById('phoneInput').value,
+        bio: document.getElementById('bioInput').value,
+    };
+
+    const removePhoto = document.getElementById('removePhotoCheckbox').value === '1';
+    const hasChanges = croppedFile || removePhoto ||
+        Object.keys(originalData).some(k => originalData[k] !== currentData[k]);
+
+    if (!hasChanges) {
+        e.preventDefault();
+        closeModal();
+        showToast(@json(__('messages.no_changes')), 'info');
+        return;
+    }
+
+    if (croppedFile) {
+        const dt = new DataTransfer();
+        dt.items.add(croppedFile);
+        let hiddenPhotoInput = form.querySelector('input[name="photo"]');
+        if (!hiddenPhotoInput) {
+            hiddenPhotoInput = document.createElement('input');
+            hiddenPhotoInput.type = 'file';
+            hiddenPhotoInput.name = 'photo';
+            hiddenPhotoInput.style.display = 'none';
+            form.appendChild(hiddenPhotoInput);
+        }
+        hiddenPhotoInput.files = dt.files;
+    }
+
+    showPageLoading();
+});
+        // حذف بتأكيد
+        function confirmDelete(id, name) {
+            showConfirm(
+                @json(__('messages.confirm_delete')) + ' ' + name + '?',
+                () => {
+                    showPageLoading();
+                    document.getElementById('delete-form-' + id).submit();
                 }
-                hiddenPhotoInput.files = dt.files;
-            }
-        });
+            );
+        }
 
         document.querySelectorAll('.card-menu-trigger').forEach(trigger => {
             trigger.addEventListener('click', (e) => {
@@ -1164,20 +1320,23 @@ font-family: "Mona-Sans Regular", sans-serif;
         document.addEventListener('click', () => {
             document.querySelectorAll('.card-menu.open, .profile-menu.open').forEach(m => m.classList.remove('open'));
         });
-function showConfirm(message, onConfirm) {
-            const modal = document.getElementById('confirmModal');
-            document.getElementById('confirmModalText').textContent = message;
-            modal.classList.add('active');
+function showConfirm(message, onConfirm, buttonText = null, buttonColor = null) {
+    const modal = document.getElementById('confirmModal');
+    document.getElementById('confirmModalText').textContent = message;
+    modal.classList.add('active');
 
-            const yesBtn = document.getElementById('confirmModalYes');
-            const newYesBtn = yesBtn.cloneNode(true);
-            yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+    const yesBtn = document.getElementById('confirmModalYes');
+    yesBtn.textContent = buttonText || @json(__('messages.delete'));
+    yesBtn.style.background = buttonColor || '#ff6b6b';
+    yesBtn.style.color = buttonColor ? '#010822' : '#fff';
 
-            newYesBtn.addEventListener('click', () => {
-                modal.classList.remove('active');
-                onConfirm();
-            });
-        }
+    const newYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+    newYesBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        onConfirm();
+    });
+}
 
         function closeConfirmModal() {
             document.getElementById('confirmModal').classList.remove('active');
@@ -1187,16 +1346,15 @@ function showConfirm(message, onConfirm) {
             document.getElementById('pageLoader').classList.add('active');
         }
 
-        document.querySelectorAll('form').forEach(f => {
-            f.addEventListener('submit', () => showPageLoading());
-        });
-
-        document.querySelectorAll('.lang, .logout-btn').forEach(btn => {
-            if (btn.tagName === 'BUTTON' && btn.closest('form')) return;
-            btn.addEventListener('click', () => showPageLoading());
-        });
-
-        document.querySelectorAll('.custom-select').forEach(select => {
+        // فلتر الأقسام - إصلاح
+        function filterMembers(dept) {
+            document.querySelectorAll('#membersGrid .member-card').forEach(card => {
+                const cardDept = (card.dataset.department || '').trim().toLowerCase();
+                const filterDept = dept.trim().toLowerCase();
+                card.style.display = (filterDept === 'all' || cardDept === filterDept) ? '' : 'none';
+            });
+        }
+document.querySelectorAll('.custom-select').forEach(select => {
             if (select.classList.contains('disabled')) return;
 
             const trigger = select.querySelector('.custom-select-trigger');
@@ -1229,7 +1387,7 @@ function showConfirm(message, onConfirm) {
                     if (hiddenInput.value === value) return;
 
                     const userName = select.closest('.user-row').querySelector('.name').textContent;
-                    const roleLabel = option.textContent;
+                    const roleLabel = option.textContent.trim();
                     const message = @json(__('messages.confirm_role_change'))
                         .replace(':name', userName)
                         .replace(':role', roleLabel);
@@ -1241,19 +1399,25 @@ function showConfirm(message, onConfirm) {
                         hiddenInput.value = value;
                         showPageLoading();
                         select.closest('form').submit();
-                    });
+                    }, '{{ __("messages.confirm") }}', '#fff');
                 });
             });
+        });
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-select.open').forEach(s => s.classList.remove('open'));
         });
 
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            const icon = type === 'success'
-                ? '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-            toast.innerHTML = icon + `<span>${message}</span>`;
+            const icons = {
+                success: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                error: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+                info: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+            };
+            toast.innerHTML = (icons[type] || icons.info) + `<span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.classList.add('hide');
@@ -1263,6 +1427,10 @@ function showConfirm(message, onConfirm) {
 
         @if (session('success'))
             showToast(@json(session('success')), 'success');
+        @endif
+
+        @if (session('info'))
+            showToast(@json(session('info')), 'info');
         @endif
 
         @if ($errors->any())
@@ -1276,6 +1444,25 @@ function showConfirm(message, onConfirm) {
         });
         document.addEventListener('mousedown', () => cursorDot.classList.add('active'));
         document.addEventListener('mouseup', () => cursorDot.classList.remove('active'));
+
+        function toggleRemovePhoto() {
+            const input = document.getElementById('removePhotoCheckbox');
+            const btn = document.getElementById('removePhotoBtn');
+            const hasCurrentPhoto = previewImg.style.display !== 'none' && previewImg.src;
+            if (!hasCurrentPhoto) return;
+
+            if (input.value === '1') {
+                input.value = '';
+                btn.style.opacity = '1';
+            } else {
+                input.value = '1';
+                btn.style.opacity = '0.6';
+                previewImg.style.display = 'none';
+                previewImg.src = '';
+                croppedFile = null;
+            }
+        }
+
     </script>
 
 </body>

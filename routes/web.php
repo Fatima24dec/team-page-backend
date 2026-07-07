@@ -18,6 +18,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/send_reset_code', [UserController::class, 'sendResetCode'])->name('password.send_code');
     Route::post('/verify_reset_code', [UserController::class, 'verifyResetCode'])->name('password.verify_code');
     Route::post('/reset_password', [UserController::class, 'resetPasswordWithCode'])->name('password.update');
+
+    Route::get('/teams', [TeamMembersController::class, 'teams'])->name('teams');
+
 });
 
 Route::middleware('auth')->group(function () {

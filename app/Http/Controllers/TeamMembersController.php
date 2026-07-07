@@ -36,7 +36,7 @@ class TeamMembersController extends Controller
             abort(403, __('messages.no_permission_edit'));
         }
 
-        $removePhoto = $request->boolean('remove_photo');
+        $removePhoto = $request->input('remove_photo') === '1';
 
         $validated = $request->validate([
             'name'       => 'required|string|max:255',
@@ -46,6 +46,25 @@ class TeamMembersController extends Controller
             'bio'        => 'nullable|string',
             'photo'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
+        $hasChanges = false;
+
+        $fieldsToCheck = ['name', 'position', 'phone', 'department', 'bio'];
+        foreach ($fieldsToCheck as $field) {
+            if (($validated[$field] ?? null) != $teamMember->$field) {
+                $hasChanges = true;
+                break;
+            }
+        }
+
+if ($request->hasFile('photo') || ($removePhoto && $teamMember->photo)) {
+    $hasChanges = true;
+}
+
+        if (!$hasChanges) {
+            return redirect()->route('team.dashboard')
+                ->with('info', __('messages.no_changes'));
+        }
 
         if ($request->hasFile('photo')) {
             if ($teamMember->photo) {
@@ -59,7 +78,8 @@ class TeamMembersController extends Controller
 
         $teamMember->update($validated);
 
-        return redirect()->route('team.dashboard')->with('success', __('messages.data_updated'));
+        return redirect()->route('team.dashboard')
+            ->with('success', __('messages.data_updated'));
     }
 
     public function destroy(User $teamMember)
@@ -80,4 +100,10 @@ class TeamMembersController extends Controller
 
         return redirect()->route('team.dashboard')->with('success', __('messages.data_updated'));
     }
+
+    public function teams()
+    {
+        return response()->json(User::all());
+    }
+
 }

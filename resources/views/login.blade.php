@@ -25,7 +25,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>6Degrees</title>
+    <title>6 Degrees</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     <style>
         * {
@@ -81,6 +81,23 @@
 
         .lang:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.4); }
 
+
+        .team-btn {
+    padding: 8px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    background: #fff;
+    color: #010822;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: opacity 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.team-btn:hover { opacity: 0.85; }
+
         .content {
             flex: 1;
             display: flex;
@@ -130,7 +147,7 @@
 
         .logo-small { display: block; width: 100px; margin-bottom: 40px; }
 
-        h1 { font-size: 40px; font-weight: 600; margin-bottom: 8px; font-family: "Mona-Sans Regular", sans-serif; }
+        h1 { font-size: 40px; font-weight: 400; margin-bottom: 8px; font-family: "Mona-Sans Regular", sans-serif; }
 
         .subtitle { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 32px; font-family: "Mona-Sans Regular", sans-serif; }
 
@@ -340,12 +357,17 @@
 <body>
 
     <header class="header">
-        <div class="header-inner">
-            <img src="https://6degrees.com.sa/assets/imgs/logo-light.png" alt="6Degrees Logo" class="logo">
-            <button type="button" class="lang" onclick="location.href='{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}'">
-                {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
-            </button>
-        </div>
+ <div class="header-inner">
+    <img src="https://6degrees.com.sa/assets/imgs/logo-light.png" alt="6Degrees Logo" class="logo">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" class="lang" onclick="location.href='{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}'">
+            {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
+        </button>
+        <a href="http://localhost:3000" class="team-btn">
+            {{ app()->getLocale() === 'ar' ? 'فريقنا' : 'Our Team' }}
+        </a>
+    </div>
+</div>
     </header>
 
     <div class="content">
@@ -366,6 +388,8 @@
                         </div>
                     @endif
 
+
+                    
                     <form action="/login" method="POST">
                         @csrf
                         <div class="field">

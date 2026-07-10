@@ -74,4 +74,6 @@ return [
 'field_required' => 'This field is required', 
 'confirm' => 'Confirm',
 'back_to_site' => 'Our Team',
+'protected_admin' => 'This account cannot be modified.',
+'no_self_role_change' => 'You cannot change your own role.',
 ];

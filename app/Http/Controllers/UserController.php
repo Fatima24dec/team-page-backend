@@ -31,18 +31,28 @@ class UserController extends Controller
         $request->session()->regenerateToken();
         return redirect('login');
     }
-
-    public function updateRole(Request $request, User $user)
-    {
-        if (!Auth::user()->isAdmin()) {
-            abort(403, __('messages.no_permission_role'));
-        }
-
-        $request->validate(['role' => 'required|in:admin,user']);
-        $user->update(['role' => $request->role]);
-
-        return back()->with('success', __('messages.role_updated'));
+public function updateRole(Request $request, User $user)
+{
+    if (!Auth::user()->isAdmin()) {
+        abort(403, __('messages.no_permission_role'));
     }
+
+  
+    $protectedAdminId = 1;
+
+    if ($user->id === $protectedAdminId) {
+        return back()->withErrors(['role' => __('messages.protected_admin')]);
+    }
+
+    if ($user->id === Auth::id()) {
+        return back()->withErrors(['role' => __('messages.no_self_role_change')]);
+    }
+
+    $request->validate(['role' => 'required|in:admin,user']);
+    $user->update(['role' => $request->role]);
+
+    return back()->with('success', __('messages.role_updated'));
+}
 
     public function invite(Request $request)
     {

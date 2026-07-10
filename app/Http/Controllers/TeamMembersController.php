@@ -101,9 +101,18 @@ if ($request->hasFile('photo') || ($removePhoto && $teamMember->photo)) {
         return redirect()->route('team.dashboard')->with('success', __('messages.data_updated'));
     }
 
-    public function teams()
-    {
-        return response()->json(User::all());
-    }
+ public function teams()
+{
+    $users = User::all()->map(function ($user) {
+
+        $user->photo = $user->photo
+            ? asset('storage/' . $user->photo)
+            : null;
+
+        return $user;
+    });
+
+    return response()->json($users);
+}
 
 }

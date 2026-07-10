@@ -9,17 +9,24 @@ use Illuminate\Support\Facades\Storage;
 
 class TeamMembersController extends Controller
 {
-    public function dashboard()
-    {
-        $teamMembers = User::latest()->get();
-        $users = User::latest()->get();
-        $departments = User::whereNotNull('department')
-            ->where('department', '!=', '')
-            ->distinct()
-            ->pluck('department');
+public function dashboard()
+{
+    $currentUser = Auth::user();
 
-        return view('dashboard', compact('teamMembers', 'users', 'departments'));
-    }
+    // نجيب باقي الأعضاء (غير المستخدم الحالي) مرتبين بالأحدث
+    $others = User::where('id', '!=', $currentUser->id)->latest()->get();
+
+    // نحط المستخدم الحالي أول، وبعده الباقين
+    $teamMembers = collect([$currentUser])->merge($others);
+
+    $users = User::latest()->get();
+    $departments = User::whereNotNull('department')
+        ->where('department', '!=', '')
+        ->distinct()
+        ->pluck('department');
+
+    return view('dashboard', compact('teamMembers', 'users', 'departments'));
+}
 
     public function edit(User $teamMember)
     {

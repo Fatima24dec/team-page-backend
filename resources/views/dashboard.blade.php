@@ -260,7 +260,7 @@
             font-size: 28px;
             letter-spacing: 2px;
             font-weight: 700;
-            color: #6ea8d6;
+            color: #6ea7d68c;
             flex-shrink: 0;
             overflow: hidden;
             align-self: stretch;
@@ -276,27 +276,34 @@
 
         .member-info h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; font-family: "Mona-Sans Regular", sans-serif; }
 
-        .member-info p {
-            font-size: 14px;
-            color: rgba(255,255,255,0.70);
-            font-weight: 400;
-            font-family: "Mona-Sans Regular", sans-serif;
-            padding-bottom: 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            margin-bottom: 2px;
-        }
+.member-info p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.70);
+    font-weight: 400;
+    font-family: "Mona-Sans Regular", sans-serif;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
         .member-meta { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; font-family: "Mona-Sans Regular", sans-serif; font-weight: 400;}
         .member-meta .meta-label { color: rgba(255, 255, 255, 0.70); font-weight: 600; font-family: "Mona-Sans Regular", sans-serif; }
 
-        .member-bio {
-            font-size: 12px;
-            color: rgba(255,255,255,0.4);
-            line-height: 1.5;
-            font-style: italic;
-            font-family: "Mona-Sans Regular", sans-serif;
-            font-weight: 400;
-        }
+.member-bio {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    font-style: italic;
+    font-family: "Mona-Sans Regular", sans-serif;
+    font-weight: 400;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
         .contact-actions {
             display: flex;
@@ -900,6 +907,8 @@
             </div>
         </div>
 
+
+        
         <div class="grid" id="membersGrid">
             @foreach ($teamMembers as $member)
                 <div class="member-card" data-department="{{ strtolower(trim($member->department ?? '')) }}">

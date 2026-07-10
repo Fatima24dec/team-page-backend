@@ -36,7 +36,7 @@ return [
     'code_expired'            => 'The code has expired, please request a new one.',
     'reset_generic_error'     => 'Something went wrong, please try again from the start.',
     'password_updated'        => 'Password updated successfully, you can now sign in.',
-    'data_updated'            => 'Data updated successfully.',
+    'data_updated'            => 'updated successfully.',
     'reset_code_mail_subject' => 'Your Password Reset Code - 6Degrees',
     'reset_code_mail_body'    => "Your password reset code is: :code\nValid for 10 minutes.",
 
@@ -73,4 +73,5 @@ return [
 'email_not_found' => 'This email is not registered in our system.',
 'field_required' => 'This field is required', 
 'confirm' => 'Confirm',
+'back_to_site' => 'Our Team',
 ];

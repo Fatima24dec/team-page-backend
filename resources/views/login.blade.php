@@ -363,9 +363,15 @@
         <button type="button" class="lang" onclick="location.href='{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}'">
             {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
         </button>
-        <a href="http://localhost:3000" class="team-btn">
-            {{ app()->getLocale() === 'ar' ? 'فريقنا' : 'Our Team' }}
-        </a>
+<a
+    href="http://localhost:3000"
+    class="team-btn"
+    id="backToSiteBtn"
+    style="text-decoration:none;"
+>
+    {{ __('messages.back_to_site') }}
+</a>
+
     </div>
 </div>
     </header>
@@ -394,7 +400,7 @@
                         @csrf
                         <div class="field">
                             <label>{{ __('messages.email') }}</label>
-                            <input type="email" name="email" placeholder="email@6Degrees.com.sa" value="{{ old('email') }}" required>
+                            <input type="email" name="email" placeholder="you@example.com.sa" value="{{ old('email') }}" required>
                         </div>
                         <div class="field">
                             <label>{{ __('messages.password') }}</label>
@@ -423,7 +429,7 @@
                             @csrf
                             <div class="field">
                                 <label>{{ __('messages.email') }}</label>
-                                <input type="email" name="email" placeholder="email@6Degrees.com.sa" value="{{ old('email') }}" required>
+                                <input type="email" name="email" placeholder="you@example.com.sa" value="{{ old('email') }}" required>
                             </div>
                             <button type="submit" class="btn">{{ __('messages.send_code') }}</button>
                         </form>
@@ -579,6 +585,16 @@
 
         document.querySelector('.lang')?.addEventListener('click', () => showPageLoading());
     </script>
+
+    <script>
+  document.getElementById('backToSiteBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('pageLoader').classList.add('active');
+    setTimeout(() => {
+      window.location.href = 'http://localhost:3000';
+    }, 800);
+  });
+</script>
 
 <div id="pageLoader"><div class="loader-spinner"></div></div>
 

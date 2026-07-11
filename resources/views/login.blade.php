@@ -269,7 +269,7 @@
             z-index: 10;
         }
 
-        .footer p { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; text-align: center; }
+        .footer p { font-size: 13px; color: rgb(255, 255, 255); margin: 0; text-align: center; }
 
         #cursorDot {
             position: fixed;

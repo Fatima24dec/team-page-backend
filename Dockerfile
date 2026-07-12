@@ -34,7 +34,7 @@ RUN install-php-extensions exif gd intl pdo pdo_mysql mbstring zip exif pcntl bc
 WORKDIR /var/www/html
 
 # Copy app source and install dependencies
-COPY --chown=www-data:www-data ./src/ ./
+COPY --chown=www-data:www-data ./ ./
 RUN composer install
 
 # Build frontend assets (after composer so vendor exists for Filament theme)

@@ -1,4 +1,4 @@
-FROM ghcr.io/serversideup/php:8.4-fpm-nginx-alpine
+FROM ghcr.io/serversideup/php:8.2-fpm-nginx-alpine
 
 ARG PHP_POST_MAX_SIZE="100M"
 ARG PHP_UPLOAD_MAX_FILE_SIZE="100M"

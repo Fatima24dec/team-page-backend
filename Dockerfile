@@ -40,14 +40,6 @@ RUN composer install
 # Build frontend assets (after composer so vendor exists for Filament theme)
 RUN npm install && npm run build
 
-# Laravel setup
-RUN php artisan cache:clear
-RUN php artisan view:clear
-RUN php artisan clear-compiled
-RUN php artisan route:clear
-RUN php artisan storage:link
-RUN php artisan icons:cache
-
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
 

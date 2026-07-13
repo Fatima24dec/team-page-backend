@@ -391,14 +391,10 @@
         <button type="button" class="lang" onclick="location.href='{{ route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar') }}'">
             {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
         </button>
-<a
-href="{{ env('FRONTEND_URL', 'https://teams.6d.com.sa/login') }}"
-    class="team-btn"
-    id="backToSiteBtn"
-    style="text-decoration:none;"
->
-    {{ __('messages.back_to_site') }}
-</a>
+        <a
+        href="{{env('FRONTEND_URL')}}" class="team-btn" id="backToSiteBtn" style="text-decoration:none;">
+            {{ __('messages.back_to_site') }}
+        </a>
 
     </div>
 </div>
@@ -423,7 +419,7 @@ href="{{ env('FRONTEND_URL', 'https://teams.6d.com.sa/login') }}"
                     @endif
 
 
-                    
+
                     <form action="/login" method="POST">
                         @csrf
                         <div class="field">
@@ -619,7 +615,7 @@ href="{{ env('FRONTEND_URL', 'https://teams.6d.com.sa/login') }}"
     e.preventDefault();
     document.getElementById('pageLoader').classList.add('active');
     setTimeout(() => {
-      window.location.href = 'http://localhost:3000';
+      window.location.href = {{env('FRONTEND_URL')}};
     }, 800);
   });
 </script>

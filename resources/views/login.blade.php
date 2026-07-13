@@ -352,6 +352,34 @@
     }
 }
 
+.team-btn{
+    white-space: nowrap;
+}
+
+@media (max-width:768px){
+
+.header-inner{
+    padding:0 16px;
+}
+
+.logo{
+    width:90px;
+}
+
+.lang{
+    padding:6px 16px;
+    font-size:12px;
+}
+
+.team-btn{
+    padding:6px 18px;
+    font-size:12px;
+    min-width:auto;
+    white-space:nowrap;
+}
+
+}
+
     </style>
 </head>
 <body>
@@ -364,7 +392,7 @@
             {{ app()->getLocale() === 'ar' ? 'English' : 'العربية' }}
         </button>
 <a
-    href="http://localhost:3000"
+href="{{ env('FRONTEND_URL', 'https://teams.6d.com.sa/login') }}"
     class="team-btn"
     id="backToSiteBtn"
     style="text-decoration:none;"

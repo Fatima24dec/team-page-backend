@@ -9,61 +9,55 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        $credentials['email'] = strtolower(trim($credentials['email']));
+    $credentials['email'] = strtolower(trim($credentials['email']));
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
-        }
-
-        return back()
-            ->with('step', 'login')
-            ->withErrors(['email' => __('messages.invalid_credentials')])
-            ->onlyInput('email');
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
     }
+
+    return back()
+        ->with('step', 'login')
+        ->withErrors(['email' => __('messages.invalid_credentials')])
+        ->onlyInput('email');
+}
 
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('login');
     }
-
-    public function updateRole(Request $request, User $user)
-    {
-        if (!Auth::user()->isAdmin()) {
-            abort(403, __('messages.no_permission_role'));
-        }
-
-        $protectedAdminId = 1;
-
-        if ($user->id === $protectedAdminId) {
-            return back()->withErrors(['role' => __('messages.protected_admin')]);
-        }
-
-        if ($user->id === Auth::id()) {
-            return back()->withErrors(['role' => __('messages.no_self_role_change')]);
-        }
-
-        $request->validate([
-            'role' => 'required|in:admin,user'
-        ]);
-
-        $user->update([
-            'role' => $request->role
-        ]);
-
-        return back()->with('success', __('messages.role_updated'));
+public function updateRole(Request $request, User $user)
+{
+    if (!Auth::user()->isAdmin()) {
+        abort(403, __('messages.no_permission_role'));
     }
+
+  
+    $protectedAdminId = 1;
+
+    if ($user->id === $protectedAdminId) {
+        return back()->withErrors(['role' => __('messages.protected_admin')]);
+    }
+
+    if ($user->id === Auth::id()) {
+        return back()->withErrors(['role' => __('messages.no_self_role_change')]);
+    }
+
+    $request->validate(['role' => 'required|in:admin,user']);
+    $user->update(['role' => $request->role]);
+
+    return back()->with('success', __('messages.role_updated'));
+}
 
     public function invite(Request $request)
     {
@@ -76,7 +70,6 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
         ]);
 
-        $validated['email'] = strtolower(trim($validated['email']));
         $validated['password'] = \Illuminate\Support\Str::random(32);
         $validated['role'] = 'user';
         $validated['phone'] = '';
@@ -88,13 +81,11 @@ class UserController extends Controller
 
     public function sendResetCode(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email'
-        ]);
+        $request->validate(['email' => 'required|email']);
 
         $email = strtolower(trim($request->email));
 
-        $user = User::where('email', $email)->first();
+$user = User::where('email', $email)->first();
 
         if (!$user) {
             return back()
@@ -114,8 +105,7 @@ class UserController extends Controller
             \Illuminate\Support\Facades\Mail::raw(
                 __('messages.reset_code_mail_body', ['code' => $code]),
                 function ($message) use ($user) {
-                    $message->to($user->email)
-                        ->subject(__('messages.reset_code_mail_subject'));
+                    $message->to($user->email)->subject(__('messages.reset_code_mail_subject'));
                 }
             );
         } catch (\Exception $e) {
@@ -128,9 +118,9 @@ class UserController extends Controller
         }
 
         return back()->with([
-            'step' => 'code',
+            'step'   => 'code',
             'status' => __('messages.code_sent'),
-            'email' => $email,
+            'email'  => $request->email,
         ]);
     }
 
@@ -138,45 +128,42 @@ class UserController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'code' => 'required|digits:4',
+            'code'  => 'required|digits:4',
         ]);
 
-        $email = strtolower(trim($request->email));
-
-        $user = User::where('email', $email)->first();
+        $user = User::where('email', $request->email)->first();
 
         if (!$user || $user->reset_code != $request->code) {
             return back()
                 ->with('step', 'code')
-                ->with('email', $email)
+                ->with('email', $request->email)
                 ->withErrors(['code' => __('messages.code_incorrect')]);
         }
 
         if (now()->greaterThan($user->reset_code_expires_at)) {
             return back()
                 ->with('step', 'code')
-                ->with('email', $email)
+                ->with('email', $request->email)
                 ->withErrors(['code' => __('messages.code_expired')]);
         }
 
         return back()->with([
-            'step' => 'password',
-            'email' => $email,
-            'code' => $request->code,
+            'step'  => 'password',
+            'email' => $request->email,
+            'code'  => $request->code,
         ]);
     }
 
     public function resetPasswordWithCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'code' => 'required|digits:4',
+            'email'    => 'required|email',
+            'code'     => 'required|digits:4',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $email = strtolower(trim($request->email));
-
-        $user = User::where('email', $email)->first();
+       $email = strtolower(trim($request->email));
+$user = User::where('email', $email)->first();
 
         if (
             !$user ||
@@ -185,19 +172,19 @@ class UserController extends Controller
         ) {
             return back()
                 ->with('step', 'password')
-                ->with('email', $email)
+                ->with('email', $request->email)
                 ->with('code', $request->code)
                 ->withErrors(['password' => __('messages.reset_generic_error')]);
         }
 
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'reset_code' => null,
             'reset_code_expires_at' => null,
         ]);
 
         return redirect('/login')->with([
-            'status' => __('messages.password_updated'),
+            'status'        => __('messages.password_updated'),
             'reset_success' => true,
         ]);
     }

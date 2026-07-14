@@ -53,8 +53,11 @@ class UserController extends Controller
 
 public function sendResetCode(Request $request)
 {
-    $request->validate(['email' => 'required|email']);
-    $user = User::where('email', $request->email)->first();
+$request->validate(['email' => 'required|email']);
+
+$email = strtolower(trim($request->email));
+
+$user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
     if (!$user) {
         return redirect('/login')
@@ -89,7 +92,7 @@ public function sendResetCode(Request $request)
     return redirect('/login')->with([
         'step'   => 'code',
         'status' => __('messages.code_sent'),
-        'email'  => $request->email,
+      'email' => $email,
     ]);
 }
 
@@ -100,25 +103,27 @@ public function verifyResetCode(Request $request)
         'code'  => 'required|digits:4',
     ]);
 
-    $user = User::where('email', $request->email)->first();
+   $email = strtolower(trim($request->email));
+
+$user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
     if (!$user || $user->reset_code != $request->code) {
         return redirect('/login')
             ->with('step', 'code')
-            ->with('email', $request->email)
+            ->with('email', $email)
             ->withErrors(['code' => __('messages.code_incorrect')]);
     }
 
     if (now()->greaterThan($user->reset_code_expires_at)) {
         return redirect('/login')
             ->with('step', 'code')
-            ->with('email', $request->email)
+            ->with('email', $email)
             ->withErrors(['code' => __('messages.code_expired')]);
     }
 
     return redirect('/login')->with([
         'step'  => 'password',
-        'email' => $request->email,
+        'email' => $email,
         'code'  => $request->code,
     ]);
 }

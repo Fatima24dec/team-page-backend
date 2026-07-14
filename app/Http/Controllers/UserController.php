@@ -12,36 +12,36 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required',
-    ]);
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $email = strtolower(trim($request->email));
+        $email = strtolower(trim($request->email));
 
-    // نبحث عن المستخدم بغض النظر عن حالة الحروف
-    $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+        // نحاول نسجل دخول
+        if (Auth::attempt(['email' => $email, 'password' => $request->password])) {
+            $request->session()->regenerate();
+            return redirect()->intended('/dashboard');
+        }
 
-    if (!$user) {
+        // نتحقق إذا الإيميل موجود
+        $userExists = User::whereRaw('LOWER(email) = ?', [$email])->exists();
+
+        if (!$userExists) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => __('messages.email_not_found')])
+                ->with('step', 'login');
+        }
+
         return back()
             ->withInput($request->only('email'))
-            ->withErrors(['email' => __('messages.email_not_found')])
+            ->withErrors(['email' => __('messages.invalid_credentials')])
             ->with('step', 'login');
     }
-
-    // نسجل دخول بالإيميل المخزن بالداتابيس
-    if (Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
-        $request->session()->regenerate();
-        return redirect()->intended('/dashboard');
-    }
-
-    return back()
-        ->withInput($request->only('email'))
-        ->withErrors(['email' => __('messages.invalid_credentials')])
-        ->with('step', 'login');
-}
 
     public function logout(Request $request)
     {

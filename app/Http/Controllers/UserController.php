@@ -51,86 +51,118 @@ class UserController extends Controller
         return redirect('/login');
     }
 
-    public function sendResetCode(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
+public function sendResetCode(Request $request)
+{
+    $request->validate(['email' => 'required|email']);
+    $user = User::where('email', $request->email)->first();
 
-        $email = strtolower(trim($request->email));
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+    if (!$user) {
+        return redirect('/login')
+            ->with('step', 'email')
+            ->withErrors(['email' => __('messages.email_not_found')])
+            ->withInput(['email' => $request->email]);
+    }
 
-        if (!$user) {
-            return back()
-                ->withErrors(['email' => __('messages.email_not_found')])
-                ->withInput()
-                ->with('step', 'forgot');
-        }
+    $code = rand(1000, 9999);
 
-        $code = rand(1000, 9999);
-        Cache::put('reset_code_' . $email, $code, now()->addMinutes(10));
+    $user->update([
+        'reset_code' => $code,
+        'reset_code_expires_at' => now()->addMinutes(10),
+    ]);
 
-        Mail::raw("Your password reset code is: $code", function ($message) use ($email) {
-            $message->to($email)->subject('Password Reset Code');
-        });
+    try {
+        \Illuminate\Support\Facades\Mail::raw(
+            __('messages.reset_code_mail_body', ['code' => $code]),
+            function ($message) use ($user) {
+                $message->to($user->email)->subject(__('messages.reset_code_mail_subject'));
+            }
+        );
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Reset code mail failed: ' . $e->getMessage());
 
+        return redirect('/login')
+            ->with('step', 'email')
+            ->withErrors(['email' => __('messages.mail_send_error')])
+            ->withInput(['email' => $request->email]);
+    }
+
+    return redirect('/login')->with([
+        'step'   => 'code',
+        'status' => __('messages.code_sent'),
+        'email'  => $request->email,
+    ]);
+}
+
+public function verifyResetCode(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'code'  => 'required|digits:4',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user || $user->reset_code != $request->code) {
+        return redirect('/login')
+            ->with('step', 'code')
+            ->with('email', $request->email)
+            ->withErrors(['code' => __('messages.code_incorrect')]);
+    }
+
+    if (now()->greaterThan($user->reset_code_expires_at)) {
+        return redirect('/login')
+            ->with('step', 'code')
+            ->with('email', $request->email)
+            ->withErrors(['code' => __('messages.code_expired')]);
+    }
+
+    return redirect('/login')->with([
+        'step'  => 'password',
+        'email' => $request->email,
+        'code'  => $request->code,
+    ]);
+}
+
+public function resetPasswordWithCode(Request $request)
+{
+    $request->validate([
+        'email'    => 'required|email',
+        'code'     => 'required',
+        'password' => 'required|min:8|confirmed',
+    ]);
+
+    $email = strtolower(trim($request->email));
+    $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
+
+    if (!$user) {
         return back()
-            ->with('status', __('messages.code_sent'))
-            ->with('email', $email)
-            ->with('step', 'code');
+            ->withErrors(['email' => __('messages.email_not_found')])
+            ->with('step', 'password');
     }
 
-    public function verifyResetCode(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'code'  => 'required',
-        ]);
-
-        $email = strtolower(trim($request->email));
-        $cached = Cache::get('reset_code_' . $email);
-
-        if (!$cached || $cached != $request->code) {
-            return back()
-                ->withErrors(['code' => __('messages.invalid_code')])
-                ->withInput()
-                ->with('step', 'code');
-        }
-
-        session(['reset_email' => $email, 'reset_code' => $request->code, 'codeVerified' => true]);
-
-        return back()->with('codeVerified', true)->with('step', 'newPassword');
+    if ($user->reset_code != $request->code) {
+        return back()
+            ->withErrors(['code' => __('messages.invalid_code')])
+            ->with('step', 'password');
     }
 
-    public function resetPasswordWithCode(Request $request)
-    {
-        $request->validate([
-            'email'                 => 'required|email',
-            'code'                  => 'required',
-            'password'              => 'required|min:8|confirmed',
-        ]);
-
-        $email = strtolower(trim($request->email));
-        $cached = Cache::get('reset_code_' . $email);
-
-        if (!$cached || $cached != $request->code) {
-            return back()
-                ->withErrors(['code' => __('messages.invalid_code')])
-                ->with('step', 'newPassword');
-        }
-
-        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
-
-        if (!$user) {
-            return back()
-                ->withErrors(['email' => __('messages.email_not_found')])
-                ->with('step', 'newPassword');
-        }
-
-        $user->update(['password' => Hash::make($request->password)]);
-        Cache::forget('reset_code_' . $email);
-        session()->forget(['reset_email', 'reset_code', 'codeVerified']);
-
-        return redirect('/login')->with('status', __('messages.password_reset_success'));
+    if (now()->greaterThan($user->reset_code_expires_at)) {
+        return back()
+            ->withErrors(['code' => __('messages.code_expired')])
+            ->with('step', 'password');
     }
+
+    $user->update([
+        'password'               => Hash::make($request->password),
+        'reset_code'             => null,
+        'reset_code_expires_at'  => null,
+    ]);
+
+    return redirect('/login')->with([
+        'step'   => 'login',
+        'status' => __('messages.password_reset_success'),
+    ]);
+}
 
     public function updateRole(Request $request, User $user)
     {

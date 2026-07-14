@@ -505,8 +505,8 @@
 
                         <form action="{{ route('password.update') }}" method="POST">
                             @csrf
-                            <input type="hidden" name="email" value="{{ session('email') }}">
-                            <input type="hidden" name="code" value="{{ session('code') }}">
+<input type="hidden" name="email" value="{{ session('email') }}">
+<input type="hidden" name="code" value="{{ session('code') }}">
                             <div class="field">
                                 <label>{{ __('messages.new_password') }}</label>
                                 <input type="password" name="password" placeholder="••••••••" required>

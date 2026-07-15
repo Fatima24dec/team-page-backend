@@ -74,6 +74,5 @@ return [
 'field_required' => 'هذا الحقل مطلوب', 
 'confirm' => 'تأكيد',
 'back_to_site' => 'فريقنا',
-'protected_admin' => 'لا يمكن تعديل صلاحية هذا الحساب.',
-'no_self_role_change' => 'لا يمكنك تغيير صلاحيتك الخاصة.',
+
 ];

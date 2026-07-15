@@ -193,4 +193,35 @@ $user = User::create([
         return redirect()->route('team.dashboard')
             ->with('success', __('messages.invite_sent'));
     }
+    
+public function updateRole(Request $request, User $user)
+{
+    if (!Auth::user()->isAdmin() && !Auth::user()->isSuperAdmin()) {
+        abort(403);
+    }
+
+    // حماية super_admin من أي تغيير
+    if ($user->role === 'super_admin') {
+        return redirect()->route('team.dashboard')
+            ->with('error', __('messages.cannot_change_super_admin'));
+    }
+
+    // منع تغيير رول نفسك
+    if ($user->id === Auth::id()) {
+        return redirect()->route('team.dashboard')
+            ->with('error', __('messages.no_permission_edit'));
+    }
+
+    // بس super_admin يقدر يرفع لـ admin
+    if ($request->role === 'admin' && !Auth::user()->isSuperAdmin()) {
+        return redirect()->route('team.dashboard')
+            ->with('error', __('messages.no_permission_edit'));
+    }
+
+    $request->validate(['role' => 'required|in:admin,user']);
+    $user->update(['role' => $request->role]);
+
+    return redirect()->route('team.dashboard')
+        ->with('success', __('messages.role_updated'));
+}
 }

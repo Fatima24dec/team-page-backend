@@ -1015,18 +1015,22 @@
                                 @method('PATCH')
                                 <input type="hidden" name="role" value="{{ $u->role }}">
 
-                                <div class="custom-select {{ $u->id === Auth::id() ? 'disabled' : '' }}">
-                                    <button type="button" class="custom-select-trigger">
-                                        <span class="custom-select-label">{{ $u->role === 'admin' ? __('messages.admin') : __('messages.user') }}</span>
-                                        <svg class="chevron" viewBox="0 0 24 24" fill="none">
-                                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </button>
-                                    <div class="custom-select-menu">
-                                        <div class="custom-select-option {{ $u->role === 'user' ? 'selected' : '' }}" data-value="user">{{ __('messages.user') }}</div>
-                                        <div class="custom-select-option {{ $u->role === 'admin' ? 'selected' : '' }}" data-value="admin">{{ __('messages.admin') }}</div>
-                                    </div>
-                                </div>
+@if ($u->role !== 'super_admin')
+<div class="custom-select {{ $u->id === Auth::id() ? 'disabled' : '' }}">
+    <button type="button" class="custom-select-trigger">
+        <span class="custom-select-label">{{ $u->role === 'admin' ? __('messages.admin') : __('messages.user') }}</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </button>
+    <div class="custom-select-menu">
+        <div class="custom-select-option {{ $u->role === 'user' ? 'selected' : '' }}" data-value="user">{{ __('messages.user') }}</div>
+        <div class="custom-select-option {{ $u->role === 'admin' ? 'selected' : '' }}" data-value="admin">{{ __('messages.admin') }}</div>
+    </div>
+</div>
+@else
+    <span style="font-size:12px; color:rgba(255,255,255,0.4); padding: 10px 16px;">Super Admin</span>
+@endif
                             </form>
                         </div>
                     @endforeach

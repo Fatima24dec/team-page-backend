@@ -175,12 +175,13 @@ public function resetPasswordWithCode(Request $request)
         $email = strtolower(trim($request->email));
         $password = \Illuminate\Support\Str::random(10);
 
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $email,
-            'password' => Hash::make($password),
-            'role'     => 'user',
-        ]);
+$user = User::create([
+    'name'     => $request->name,
+    'email'    => $email,
+    'password' => $password,
+    'role'     => 'user',
+    'phone'    => '',
+]);
 
         Mail::raw(
             "You've been invited to 6Degrees Team Dashboard.\n\nEmail: $email\nPassword: $password\n\nLogin at: " . env('APP_URL') . "/login",

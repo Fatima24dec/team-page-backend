@@ -1146,6 +1146,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
+
+        // في أعلى الـ script — قبل أي دالة
+let cropper = null;
+let croppedFile = null;
+
+
+
         const memberModal = document.getElementById('memberModal');
         const form = document.getElementById('memberForm');
 
@@ -1173,13 +1180,14 @@
     // الجوال والصورة متاحين للكل
     document.getElementById('phoneInput').disabled = false;
 
-    originalData = {
-        name: member.name ?? '',
-        position: member.position ?? '',
-        department: member.department ?? '',
-        phone: member.phone ?? '',
-        bio: member.bio ?? '',
-    };
+ // بدل let originalData = { أو const originalData = {
+originalData = {
+    name: member.name ?? '',
+    position: member.position ?? '',
+    department: member.department ?? '',
+    phone: member.phone ?? '',
+    bio: member.bio ?? '',
+};
 const previewImg = document.getElementById('photoPreviewImg');
 
 if (previewImg) {
@@ -1203,6 +1211,7 @@ if (previewImg) {
         const cropImage = document.getElementById('cropImage');
  const rawInput = document.getElementById('photoRawInput');
 
+
 if (rawInput) {
     rawInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -1215,13 +1224,16 @@ if (rawInput) {
 
             if (cropper) cropper.destroy();
 
-            cropper = new Cropper(cropImage, {
-                aspectRatio: 1,
-                viewMode: 1,
-                dragMode: 'move',
-                background: false,
-                autoCropArea: 1,
-            });
+            // انتظري الصورة تحمّل أول
+            cropImage.onload = () => {
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    background: false,
+                    autoCropArea: 1,
+                });
+            };
         };
 
         reader.readAsDataURL(file);
@@ -1234,19 +1246,27 @@ if (rawInput) {
             if (cropper) { cropper.destroy(); cropper = null; }
         }
 
-        function confirmCrop() {
-            if (!cropper) return;
-            cropper.getCroppedCanvas({ width: 400, height: 400 }).toBlob((blob) => {
-                croppedFile = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-                document.getElementById('removePhotoCheckbox').value = '';
-                const previewUrl = URL.createObjectURL(blob);
-                previewImg.src = previewUrl;
-                previewImg.style.display = 'block';
-                cropModal.classList.remove('active');
-                cropper.destroy();
-                cropper = null;
-            }, 'image/jpeg', 0.9);
+function confirmCrop() {
+    if (!cropper) return;
+
+    cropper.getCroppedCanvas({ width: 400, height: 400 }).toBlob((blob) => {
+        croppedFile = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+        document.getElementById('removePhotoCheckbox').value = '';
+
+        const previewUrl = URL.createObjectURL(blob);
+
+        // هنا التغيير — بدل previewImg مباشرة
+        const previewImgEl = document.getElementById('photoPreviewImg');
+        if (previewImgEl) {
+            previewImgEl.src = previewUrl;
+            previewImgEl.style.display = 'block';
         }
+
+        cropModal.classList.remove('active');
+        cropper.destroy();
+        cropper = null;
+    }, 'image/jpeg', 0.9);
+}
 
         function toggleRemovePhoto() {
             const input = document.getElementById('removePhotoCheckbox');

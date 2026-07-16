@@ -1268,20 +1268,25 @@ function confirmCrop() {
     }, 'image/jpeg', 0.9);
 }
 
-        function toggleRemovePhoto() {
-            const input = document.getElementById('removePhotoCheckbox');
-            const btn = document.getElementById('removePhotoBtn');
-            if (input.value === '1') {
-                input.value = '';
-                btn.style.opacity = '1';
-            } else {
-                input.value = '1';
-                btn.style.opacity = '0.6';
-                previewImg.style.display = 'none';
-                previewImg.src = '';
-                croppedFile = null;
-            }
+function toggleRemovePhoto() {
+    const input = document.getElementById('removePhotoCheckbox');
+    const btn = document.getElementById('removePhotoBtn');
+    const previewImg = document.getElementById('photoPreviewImg');
+
+    if (input.value === '1') {
+        input.value = '';
+        btn.style.opacity = '1';
+        if (previewImg) previewImg.style.display = 'block';
+    } else {
+        input.value = '1';
+        btn.style.opacity = '0.6';
+        if (previewImg) {
+            previewImg.style.display = 'none';
+            previewImg.src = '';
         }
+        croppedFile = null;
+    }
+}
 
         // فحص التغييرات قبل الحفظ
       form.addEventListener('submit', (e) => {
@@ -1504,23 +1509,7 @@ document.querySelectorAll('.custom-select').forEach(select => {
         document.addEventListener('mousedown', () => cursorDot.classList.add('active'));
         document.addEventListener('mouseup', () => cursorDot.classList.remove('active'));
 
-        function toggleRemovePhoto() {
-            const input = document.getElementById('removePhotoCheckbox');
-            const btn = document.getElementById('removePhotoBtn');
-            const hasCurrentPhoto = previewImg.style.display !== 'none' && previewImg.src;
-            if (!hasCurrentPhoto) return;
-
-            if (input.value === '1') {
-                input.value = '';
-                btn.style.opacity = '1';
-            } else {
-                input.value = '1';
-                btn.style.opacity = '0.6';
-                previewImg.style.display = 'none';
-                previewImg.src = '';
-                croppedFile = null;
-            }
-        }
+        
 
     </script>
 

@@ -46,13 +46,12 @@ public function dashboard()
     $removePhoto = $request->input('remove_photo') === '1';
 
     // إذا مو admin، يقدر يعدل بس الجوال والصورة
-    if (!Auth::user()->isAdmin()) {
-        $validated = $request->validate([
-            'phone' => 'required|string|max:30',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-        $fieldsToCheck = ['phone'];
-    } else {
+if (!Auth::user()->isAdmin()) {
+    $validated = $request->validate([
+        'phone' => 'required|string|max:30',
+    ]);
+    $fieldsToCheck = ['phone'];
+} else {
         $validated = $request->validate([
             'name'       => 'required|string|max:255',
             'position'   => 'nullable|string|max:255',
@@ -72,24 +71,32 @@ public function dashboard()
         }
     }
 
+if (Auth::user()->isAdmin()) {
     if ($request->hasFile('photo') || ($removePhoto && $teamMember->photo)) {
         $hasChanges = true;
     }
+}
 
     if (!$hasChanges) {
         return redirect()->route('team.dashboard')
             ->with('info', __('messages.no_changes'));
     }
 
+if (Auth::user()->isAdmin()) {
+
     if ($request->hasFile('photo')) {
         if ($teamMember->photo) {
             Storage::disk('public')->delete($teamMember->photo);
         }
+
         $validated['photo'] = $request->file('photo')->store('team-photos', 'public');
+
     } elseif ($removePhoto && $teamMember->photo) {
+
         Storage::disk('public')->delete($teamMember->photo);
         $validated['photo'] = null;
     }
+}
 
     $teamMember->update($validated);
 

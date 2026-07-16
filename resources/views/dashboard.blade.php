@@ -1055,22 +1055,24 @@
                 <h2>{{ __('messages.edit_member') }}</h2>
 
                 {{-- الصورة - كاملة العرض --}}
-                <div class="field modal-form-full">
-                    <label>{{ __('messages.photo') }}</label>
-                    <div class="photo-preview-wrap">
-                        <div class="photo-preview-box" id="photoPreviewBox">
-                            <img id="photoPreviewImg" src="" alt="">
-                        </div>
-                        <button type="button" class="photo-pick-btn" onclick="document.getElementById('photoRawInput').click()">
-                            {{ __('messages.add_photo') }}
-                        </button>
-                        <button type="button" class="photo-pick-btn" id="removePhotoBtn" onclick="toggleRemovePhoto()" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.3); color: #ff6b6b;">
-                            {{ __('messages.remove_photo') }}
-                        </button>
-                        <input type="file" id="photoRawInput" accept="image/*" style="display:none;">
-                        <input type="hidden" name="remove_photo" id="removePhotoCheckbox" value="">
-                    </div>
-                </div>
+  @if(Auth::user()->isAdmin())
+<div class="field modal-form-full">
+    <label>{{ __('messages.photo') }}</label>
+    <div class="photo-preview-wrap">
+        <div class="photo-preview-box" id="photoPreviewBox">
+            <img id="photoPreviewImg" src="" alt="">
+        </div>
+        <button type="button" class="photo-pick-btn" onclick="document.getElementById('photoRawInput').click()">
+            {{ __('messages.add_photo') }}
+        </button>
+        <button type="button" class="photo-pick-btn" id="removePhotoBtn" onclick="toggleRemovePhoto()" style="background: rgba(255,69,58,0.1); border-color: rgba(255,69,58,0.3); color: #ff6b6b;">
+            {{ __('messages.remove_photo') }}
+        </button>
+        <input type="file" id="photoRawInput" accept="image/*" style="display:none;">
+        <input type="hidden" name="remove_photo" id="removePhotoCheckbox" value="">
+    </div>
+</div>
+@endif
 
                 {{-- الحقول بعمودين --}}
                 <div class="modal-form-grid">
@@ -1178,8 +1180,9 @@
         phone: member.phone ?? '',
         bio: member.bio ?? '',
     };
+const previewImg = document.getElementById('photoPreviewImg');
 
-    const previewImg = document.getElementById('photoPreviewImg');
+if (previewImg) {
     if (member.photo) {
         previewImg.src = '/storage/' + member.photo;
         previewImg.style.display = 'block';
@@ -1187,6 +1190,7 @@
         previewImg.src = '';
         previewImg.style.display = 'none';
     }
+}
 
     croppedFile = null;
     memberModal.classList.add('active');
@@ -1197,26 +1201,32 @@
 
         const cropModal = document.getElementById('cropModal');
         const cropImage = document.getElementById('cropImage');
-        const rawInput = document.getElementById('photoRawInput');
-        const previewImg = document.getElementById('photoPreviewImg');
-        let cropper = null;
-        let croppedFile = null;
+ const rawInput = document.getElementById('photoRawInput');
 
-        rawInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                cropImage.src = ev.target.result;
-                cropModal.classList.add('active');
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(cropImage, {
-                    aspectRatio: 1, viewMode: 1, dragMode: 'move',
-                    background: false, autoCropArea: 1,
-                });
-            };
-            reader.readAsDataURL(file);
-        });
+if (rawInput) {
+    rawInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            cropImage.src = ev.target.result;
+            cropModal.classList.add('active');
+
+            if (cropper) cropper.destroy();
+
+            cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                background: false,
+                autoCropArea: 1,
+            });
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
 
         function cancelCrop() {
             cropModal.classList.remove('active');

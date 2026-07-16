@@ -770,6 +770,12 @@
     border-color: rgba(255,107,107,0.5);
 }
 
+.field input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(255,255,255,0.02);
+}
+
 @media (max-width: 768px) {
     main.dashboard-main {
         padding: 24px 16px;
@@ -1144,38 +1150,48 @@
         // حفظ البيانات الأصلية للمقارنة
         let originalData = {};
 
-        function openEditModal(member) {
-            form.reset();
-            form.action = `/team/${member.id}`;
-            document.getElementById('nameInput').value = member.name ?? '';
-            document.getElementById('positionInput').value = member.position ?? '';
-            document.getElementById('departmentInput').value = member.department ?? '';
-            document.getElementById('phoneInput').value = member.phone ?? '';
-            document.getElementById('bioInput').value = member.bio ?? '';
-            document.getElementById('removePhotoCheckbox').value = '';
+       function openEditModal(member) {
+    form.reset();
+    form.action = `/team/${member.id}`;
+    document.getElementById('nameInput').value = member.name ?? '';
+    document.getElementById('positionInput').value = member.position ?? '';
+    document.getElementById('departmentInput').value = member.department ?? '';
+    document.getElementById('phoneInput').value = member.phone ?? '';
+    document.getElementById('bioInput').value = member.bio ?? '';
 
-            // حفظ البيانات الأصلية
-            originalData = {
-                name: member.name ?? '',
-                position: member.position ?? '',
-                department: member.department ?? '',
-                phone: member.phone ?? '',
-                bio: member.bio ?? '',
-            };
+    // إذا مو admin، نخفي بعض الحقول
+    const isAdmin = {{ Auth::user()->isAdmin() ? 'true' : 'false' }};
+    const isOwner = member.id === {{ Auth::id() }};
 
-            const previewImg = document.getElementById('photoPreviewImg');
-            if (member.photo) {
-                previewImg.src = '/storage/' + member.photo;
-                previewImg.style.display = 'block';
-            } else {
-                previewImg.src = '';
-                previewImg.style.display = 'none';
-            }
+    document.getElementById('nameInput').disabled = !isAdmin;
+    document.getElementById('positionInput').disabled = !isAdmin;
+    document.getElementById('departmentInput').disabled = !isAdmin;
+    document.getElementById('bioInput').disabled = !isAdmin;
 
-            croppedFile = null;
-            memberModal.classList.add('active');
-            document.querySelectorAll('.card-menu.open, .profile-menu.open').forEach(m => m.classList.remove('open'));
-        }
+    // الجوال والصورة متاحين للكل
+    document.getElementById('phoneInput').disabled = false;
+
+    originalData = {
+        name: member.name ?? '',
+        position: member.position ?? '',
+        department: member.department ?? '',
+        phone: member.phone ?? '',
+        bio: member.bio ?? '',
+    };
+
+    const previewImg = document.getElementById('photoPreviewImg');
+    if (member.photo) {
+        previewImg.src = '/storage/' + member.photo;
+        previewImg.style.display = 'block';
+    } else {
+        previewImg.src = '';
+        previewImg.style.display = 'none';
+    }
+
+    croppedFile = null;
+    memberModal.classList.add('active');
+    document.querySelectorAll('.card-menu.open, .profile-menu.open').forEach(m => m.classList.remove('open'));
+}
 
         function closeModal() { memberModal.classList.remove('active'); }
 

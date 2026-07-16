@@ -37,14 +37,22 @@ public function dashboard()
         return view('team.edit', compact('teamMember'));
     }
 
-    public function update(Request $request, User $teamMember)
-    {
-        if (!Auth::user()->isAdmin() && $teamMember->id !== Auth::id()) {
-            abort(403, __('messages.no_permission_edit'));
-        }
+   public function update(Request $request, User $teamMember)
+{
+    if (!Auth::user()->isAdmin() && $teamMember->id !== Auth::id()) {
+        abort(403, __('messages.no_permission_edit'));
+    }
 
-        $removePhoto = $request->input('remove_photo') === '1';
+    $removePhoto = $request->input('remove_photo') === '1';
 
+    // إذا مو admin، يقدر يعدل بس الجوال والصورة
+    if (!Auth::user()->isAdmin()) {
+        $validated = $request->validate([
+            'phone' => 'required|string|max:30',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+        $fieldsToCheck = ['phone'];
+    } else {
         $validated = $request->validate([
             'name'       => 'required|string|max:255',
             'position'   => 'nullable|string|max:255',
@@ -53,41 +61,42 @@ public function dashboard()
             'bio'        => 'nullable|string',
             'photo'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-
-        $hasChanges = false;
-
         $fieldsToCheck = ['name', 'position', 'phone', 'department', 'bio'];
-        foreach ($fieldsToCheck as $field) {
-            if (($validated[$field] ?? null) != $teamMember->$field) {
-                $hasChanges = true;
-                break;
-            }
-        }
+    }
 
-if ($request->hasFile('photo') || ($removePhoto && $teamMember->photo)) {
-    $hasChanges = true;
+    $hasChanges = false;
+    foreach ($fieldsToCheck as $field) {
+        if (($validated[$field] ?? null) != $teamMember->$field) {
+            $hasChanges = true;
+            break;
+        }
+    }
+
+    if ($request->hasFile('photo') || ($removePhoto && $teamMember->photo)) {
+        $hasChanges = true;
+    }
+
+    if (!$hasChanges) {
+        return redirect()->route('team.dashboard')
+            ->with('info', __('messages.no_changes'));
+    }
+
+    if ($request->hasFile('photo')) {
+        if ($teamMember->photo) {
+            Storage::disk('public')->delete($teamMember->photo);
+        }
+        $validated['photo'] = $request->file('photo')->store('team-photos', 'public');
+    } elseif ($removePhoto && $teamMember->photo) {
+        Storage::disk('public')->delete($teamMember->photo);
+        $validated['photo'] = null;
+    }
+
+    $teamMember->update($validated);
+
+    return redirect()->route('team.dashboard')
+        ->with('success', __('messages.data_updated'));
 }
 
-        if (!$hasChanges) {
-            return redirect()->route('team.dashboard')
-                ->with('info', __('messages.no_changes'));
-        }
-
-        if ($request->hasFile('photo')) {
-            if ($teamMember->photo) {
-                Storage::disk('public')->delete($teamMember->photo);
-            }
-            $validated['photo'] = $request->file('photo')->store('team-photos', 'public');
-        } elseif ($removePhoto && $teamMember->photo) {
-            Storage::disk('public')->delete($teamMember->photo);
-            $validated['photo'] = null;
-        }
-
-        $teamMember->update($validated);
-
-        return redirect()->route('team.dashboard')
-            ->with('success', __('messages.data_updated'));
-    }
 
     public function destroy(User $teamMember)
     {

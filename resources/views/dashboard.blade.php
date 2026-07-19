@@ -1509,8 +1509,6 @@ document.querySelectorAll('.custom-select').forEach(select => {
         document.addEventListener('mousedown', () => cursorDot.classList.add('active'));
         document.addEventListener('mouseup', () => cursorDot.classList.remove('active'));
 
-        
-
     </script>
 
 </body>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -223,5 +224,32 @@ public function updateRole(Request $request, User $user)
 
     return redirect()->route('team.dashboard')
         ->with('success', __('messages.role_updated'));
+}
+
+
+
+public function apiLogin(Request $request)
+{
+    $credentials = $request->validate([
+        'email'    => 'required|email',
+        'password' => 'required',
+    ]);
+
+    if (!$token = auth('api')->attempt($credentials)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    return response()->json(['token' => $token]);
+}
+
+public function apiLogout()
+{
+    auth('api')->logout();
+    return response()->json(['message' => 'Logged out']);
+}
+
+public function me()
+{
+    return response()->json(auth('api')->user());
 }
 }

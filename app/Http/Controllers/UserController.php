@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+
 class UserController extends Controller
 {
     public function login(Request $request)
@@ -128,12 +129,19 @@ $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
         'code'  => $request->code,
     ]);
 }
+
+
 public function resetPasswordWithCode(Request $request)
 {
     $request->validate([
-        'email'                 => 'required|email',
-        'code'                  => 'required',
-        'password'              => 'required|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+        'email' => 'required|email',
+        'code' => 'required|digits:4',
+        'password' => [
+            'required',
+            'confirmed',
+            'min:8',
+            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/',
+        ],
     ]);
 
     $email = strtolower(trim($request->email));
@@ -142,24 +150,33 @@ public function resetPasswordWithCode(Request $request)
 
     if (!$user) {
         return redirect('/login')
-            ->withErrors(['email' => __('messages.email_not_found')]);
+            ->with('step', 'email')
+            ->withErrors([
+                'email' => __('messages.email_not_found')
+            ]);
     }
 
-    if ($user->reset_code != $request->code) {
+    if (
+        $user->reset_code != $request->code ||
+        now()->greaterThan($user->reset_code_expires_at)
+    ) {
         return redirect('/login')
-            ->with('step', 'password')
+            ->with('step', 'code')
             ->with('email', $email)
-            ->with('code', $request->code)
-            ->withErrors(['password' => __('messages.invalid_code')]);
+            ->withErrors([
+                'code' => __('messages.invalid_code')
+            ]);
     }
 
+    // حفظ كلمة المرور الجديدة (سيتم تشفيرها تلقائياً بسبب cast => hashed)
     $user->password = $request->password;
     $user->reset_code = null;
     $user->reset_code_expires_at = null;
     $user->save();
 
     return redirect('/login')
-        ->with('status', __('messages.password_reset_success'));
+        ->with('status', __('messages.password_reset_success'))
+        ->with('step', 'login');
 }
 
     public function invite(Request $request)
@@ -179,7 +196,7 @@ public function resetPasswordWithCode(Request $request)
 $user = User::create([
     'name'     => $request->name,
     'email'    => $email,
-    'password' => $password,
+    'password' => Hash::make($password),
     'role'     => 'user',
     'phone'    => '',
 ]);

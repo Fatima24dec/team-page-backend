@@ -74,5 +74,5 @@ return [
 'field_required' => 'This field is required', 
 'confirm' => 'Confirm',
 'back_to_site' => 'Our Team',
-
+'password_strength' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
 ];

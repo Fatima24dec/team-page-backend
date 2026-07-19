@@ -133,7 +133,7 @@ public function resetPasswordWithCode(Request $request)
     $request->validate([
         'email'                 => 'required|email',
         'code'                  => 'required',
-        'password'              => 'required|confirmed',
+        'password'              => 'required|min:8|confirmed|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
     ]);
 
     $email = strtolower(trim($request->email));

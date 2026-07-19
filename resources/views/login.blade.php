@@ -429,6 +429,9 @@
                         <div class="field">
                             <label>{{ __('messages.password') }}</label>
                             <input type="password" name="password" placeholder="••••••••" required>
+                                <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px;">
+        {{ __('messages.password_strength') }}
+    </p>
                         </div>
                         <a class="forgot" onclick="showSection('forgotSection'); showStep('stepEmail')">{{ __('messages.forgot_password') }}</a>
                         <button type="submit" class="btn">{{ __('messages.sign_in') }}</button>

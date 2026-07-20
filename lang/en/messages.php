@@ -76,4 +76,5 @@ return [
 'back_to_site' => 'Our Team',
 'password_strength' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
  'no_permission' => 'You are not authorized to delete this member.',
+ 'resend_code' => "Didn't receive the code? Resend",
 ];

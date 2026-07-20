@@ -466,6 +466,29 @@ html[dir="rtl"] .eye-btn{
     color:rgba(255,255,255,.45);
 } 
 
+@media (hover: hover) {
+    .resend-btn:hover {
+        color: #fff;
+        opacity: 1;
+    }
+}
+
+.resend-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,.45);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: all .25s ease;
+}
+
+.resend-btn:hover {
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    text-shadow: 0 0 8px rgba(255,255,255,.5);
+}
+
     </style>
 </head>
 <body>
@@ -582,7 +605,19 @@ html[dir="rtl"] .eye-btn{
                             <button type="submit" class="btn">{{ __('messages.verify_code') }}</button>
                         </form>
 
-                        <a class="back" onclick="showStep('stepEmail')">{{ __('messages.back') }}</a>
+<form action="{{ route('password.send_code') }}" method="POST" style="margin-top:12px;text-align:center;">
+    @csrf
+    <input type="hidden" name="email" value="{{ session('email') }}">
+<button
+    type="submit"  class="resend-btn"
+    style="background: none; border: none; color: rgba(255,255,255,0.45); font-size: 13px; cursor: pointer; text-decoration: underline;">
+    {{ __('messages.resend_code') }}
+</button>
+</form>
+
+<a class="back" onclick="showStep('stepEmail')">
+    {{ __('messages.back') }}
+</a>
                     </div>
 
                     <div class="step" id="stepNewPassword">

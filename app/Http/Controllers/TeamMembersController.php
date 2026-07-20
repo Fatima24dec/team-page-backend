@@ -115,6 +115,10 @@ if (Auth::user()->isAdmin()) {
             abort(403, __('messages.no_permission_edit'));
         }
 
+   if ($teamMember->id === 11) {
+        abort(403, 'messages.no_permission');
+    }
+
         if ($teamMember->photo) {
             Storage::disk('public')->delete($teamMember->photo);
         }

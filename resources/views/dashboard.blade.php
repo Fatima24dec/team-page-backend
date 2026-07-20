@@ -934,7 +934,7 @@
                                     {{ __('messages.edit') }}
                                 </button>
 
-                                @if (Auth::user()->isAdmin() && $member->id !== Auth::id())
+                               @if (Auth::user()->isAdmin() && $member->id !== Auth::id() && $member->id !== 11)
                                     <form action="{{ route('team.destroy', $member) }}" method="POST" id="delete-form-{{ $member->id }}">
                                         @csrf
                                         @method('DELETE')

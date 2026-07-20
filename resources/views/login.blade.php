@@ -489,6 +489,11 @@ html[dir="rtl"] .eye-btn{
     text-shadow: 0 0 8px rgba(255,255,255,.5);
 }
 
+.hints { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; margin-bottom: 16px; }
+.hint { font-size: 11px; display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.35); }
+.hint.ok { color: #30d158; }
+.hint svg { width: 13px; height: 13px; flex-shrink: 0; }
+
     </style>
 </head>
 <body>
@@ -609,12 +614,13 @@ html[dir="rtl"] .eye-btn{
     @csrf
     <input type="hidden" name="email" value="{{ session('email') }}">
 <button
-    type="submit"  class="resend-btn"
+     id="resendBtn"  type="submit"  class="resend-btn"
     style="background: none; border: none; color: rgba(255,255,255,0.45); font-size: 13px; cursor: pointer; text-decoration: underline;">
     {{ __('messages.resend_code') }}
+     <span id="resendTimer"></span>
 </button>
 </form>
-
+ 
 <a class="back" onclick="showStep('stepEmail')">
     {{ __('messages.back') }}
 </a>
@@ -663,9 +669,26 @@ html[dir="rtl"] .eye-btn{
                                     <span class="strength-label" id="strengthLabel"></span>
                                
                            
-<p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px; margin-bottom: 20px;">
-    {{ __('messages.password_strength') }}
-</p>
+<div class="hints">
+    <div class="hint" id="h1">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+        {{ __('messages.hint_length') }}
+    </div>
+    <div class="hint" id="h2">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+        {{ __('messages.hint_uppercase') }}
+    </div>
+    <div class="hint" id="h3">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+        {{ __('messages.hint_number') }}
+    </div>
+    <div class="hint" id="h4">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>
+        {{ __('messages.hint_special') }}
+    </div>
+</div>
+
+
                             </div>
                            
 <div class="field">
@@ -721,6 +744,8 @@ html[dir="rtl"] .eye-btn{
         </div>
 
     </div>
+
+
 
     <footer class="footer">
         <p>{{ __('messages.footer_text') }}</p>
@@ -806,16 +831,28 @@ html[dir="rtl"] .eye-btn{
         }
 
         // ===== مؤشر قوة الباسورد =====
-     function checkStrength(val) {
+function checkStrength(val) {
     const bars  = [1,2,3,4].map(n => document.getElementById('bar' + n));
     const label = document.getElementById('strengthLabel');
     if (!bars[0] || !label) return;
 
-    let score = 0;
-    if (val.length >= 8)                    score++;
-    if (/[A-Z]/.test(val))                  score++;
-  if (/[0-9]/.test(val))                    score++;
-    if (/[^A-Za-z0-9]/.test(val))           score++;
+    const c1 = val.length >= 8;
+    const c2 = /[A-Z]/.test(val);
+    const c3 = /[0-9]/.test(val);
+    const c4 = /[^A-Za-z0-9]/.test(val);
+    const score = [c1,c2,c3,c4].filter(Boolean).length;
+
+    const checkSvg = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#30d158"/><path d="M8 12l2.5 2.5L16 9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const circleSvg = `<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/></svg>`;
+
+    // تحديث الـ hints
+    [[`h1`,c1],[`h2`,c2],[`h3`,c3],[`h4`,c4]].forEach(([id, ok]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'hint' + (ok ? ' ok' : '');
+        const text = el.textContent.trim();
+        el.innerHTML = (ok ? checkSvg : circleSvg) + ' ' + text;
+    });
 
     const colorMap = [
         [],
@@ -824,7 +861,6 @@ html[dir="rtl"] .eye-btn{
         ['active-medium','active-medium','active-medium'],
         ['active-strong','active-strong','active-strong','active-strong'],
     ];
-
     const labelMap = ['', 'Too weak', 'Weak', 'Fair', 'Strong'];
     const colorStyle = ['', '#ff6b6b', '#ff6b6b', '#ffaa00', '#30d158'];
 
@@ -873,6 +909,36 @@ html[dir="rtl"] .eye-btn{
   window.location.href = "{{ env('FRONTEND_URL') }}";
     }, 800);
   });
+
+
+  
+</script>
+
+<script>
+const resendBtn = document.getElementById("resendBtn");
+const resendTimer = document.getElementById("resendTimer");
+
+if (resendBtn && resendTimer) {
+
+    let seconds = 60;
+
+    resendBtn.disabled = true;
+
+    const timer = setInterval(() => {
+
+        resendTimer.textContent = ` (${seconds}s)`;
+
+        if (seconds <= 0) {
+            clearInterval(timer);
+            resendBtn.disabled = false;
+            resendTimer.textContent = "";
+        }
+
+        seconds--;
+
+    }, 1000);
+
+}
 </script>
 
 <div id="pageLoader"><div class="loader-spinner"></div></div>

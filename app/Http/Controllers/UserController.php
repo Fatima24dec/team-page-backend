@@ -95,7 +95,10 @@ $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
         'step'   => 'code',
         'status' => __('messages.code_sent'),
       'email' => $email,
+      
     ]);
+
+    
 }
 
 public function verifyResetCode(Request $request)

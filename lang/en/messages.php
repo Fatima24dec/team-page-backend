@@ -74,7 +74,11 @@ return [
 'field_required' => 'This field is required', 
 'confirm' => 'Confirm',
 'back_to_site' => 'Our Team',
-'password_strength' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.',
+'hint_length'   => 'At least 8 characters',
+'hint_uppercase' => 'Contains uppercase letter',
+'hint_number'   => 'Contains number',
+'hint_special'  => 'Contains special character',
  'no_permission' => 'You are not authorized to delete this member.',
  'resend_code' => "Didn't receive the code? Resend",
+ 
 ];

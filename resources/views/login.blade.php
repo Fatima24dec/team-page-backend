@@ -380,6 +380,92 @@
 
 }
 
+/* ===== حقل الباسورد مع أيقونة العين ===== */
+.password-wrap{
+    position:relative;
+}
+
+.password-wrap input{
+    width:100%;
+    padding-right:48px;
+}
+
+html[dir="rtl"] .password-wrap input{
+    padding-right:16px;
+    padding-left:48px;
+}
+
+.eye-btn{
+    position:absolute;
+    top:50%;
+    right:14px;
+    transform:translateY(-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:24px;
+    height:24px;
+    padding:0;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:#8b8fa3;
+    cursor:pointer;
+}
+
+.eye-btn svg{
+    width:20px;
+    height:20px;
+}
+
+.eye-btn:hover{
+    color:#fff;
+}
+
+html[dir="rtl"] .eye-btn{
+    left:14px;
+    right:auto;
+}
+        .eye-btn:hover { color: rgba(255,255,255,0.8); }
+
+        .eye-btn svg { width: 18px; height: 18px; }
+
+        /* ===== مؤشر قوة الباسورد ===== */
+        .strength-wrap {
+            margin-top: 8px;
+        }
+
+        .strength-bars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.3s;
+        }
+
+        .strength-bar.active-weak   { background: #ff4d4d; }
+        .strength-bar.active-medium { background: #ffaa00; }
+        .strength-bar.active-strong { background: #30d158; }
+
+        .strength-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+
+        .password-hint{
+    margin-top:8px;
+    margin-bottom:16px;
+    font-size:12px;
+    color:rgba(255,255,255,.45);
+} 
+
     </style>
 </head>
 <body>
@@ -428,14 +514,18 @@
                         </div>
                         <div class="field">
                             <label>{{ __('messages.password') }}</label>
-                            <input type="password" name="password" placeholder="••••••••" required>
-                                <p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px;">
-        {{ __('messages.password_strength') }}
-    </p>
-                        </div>
+                             <div class="password-wrap">
+                              <input id="loginPassword" type="password" name="password" placeholder="••••••••" required>
+    
+                                     <button type="button" class="eye-btn" onclick="toggleEye('loginPassword', this)"> 
+                                    <svg viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+                                    </button>                              
+                                </div>  
+                            </div>
                         <a class="forgot" onclick="showSection('forgotSection'); showStep('stepEmail')">{{ __('messages.forgot_password') }}</a>
                         <button type="submit" class="btn">{{ __('messages.sign_in') }}</button>
                     </form>
+                </button>
                 </div>
 
                 {{-- ===== قسم نسيت كلمة المرور - 3 خطوات ===== --}}
@@ -512,11 +602,76 @@
 <input type="hidden" name="code" value="{{ session('code') }}">
                             <div class="field">
                                 <label>{{ __('messages.new_password') }}</label>
-                                <input type="password" name="password" placeholder="••••••••" required>
+   <div class="password-wrap">
+    <input      oninput="checkStrength(this.value)"  id="newPassword" type="password" name="password" placeholder="••••••••" required>
+
+    <button type="button" class="eye-btn" onclick="toggleEye('newPassword', this)">
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                  stroke="currentColor"
+                  stroke-width="1.6"/>
+            <circle cx="12"
+                    cy="12"
+                    r="3"
+                    stroke="currentColor"
+                    stroke-width="1.6"/>
+        </svg>
+    </button>
+</div>
+                                <div class="strength-wrap">
+                                    <div class="strength-bars">
+                                        <div class="strength-bar" id="bar1"></div>
+                                        <div class="strength-bar" id="bar2"></div>
+                                        <div class="strength-bar" id="bar3"></div>
+                                        <div class="strength-bar" id="bar4"></div>
+                                    </div>
+                                    <span class="strength-label" id="strengthLabel"></span>
+                               
+                           
+<p style="font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 6px; margin-bottom: 20px;">
+    {{ __('messages.password_strength') }}
+</p>
                             </div>
-                            <div class="field">
-                                <label>{{ __('messages.confirm_password') }}</label>
-                                <input type="password" name="password_confirmation" placeholder="••••••••" required>
+                           
+<div class="field">
+    <label>{{ __('messages.confirm_password') }}</label>
+
+    <div class="password-wrap">
+
+        <input
+            id="confirmPassword"
+            type="password"
+            name="password_confirmation"
+            placeholder="••••••••"
+            onkeyup="checkMatch()"
+            required>
+
+        <button
+            type="button"
+            class="eye-btn"
+            onclick="toggleEye('confirmPassword', this)">
+
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                      stroke="currentColor"
+                      stroke-width="1.6"/>
+                <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                      stroke="currentColor"
+                      stroke-width="1.6"/>
+            </svg>
+
+        </button>
+
+    </div>
+
+    <span id="matchLabel" class="strength-label"></span>
+
+</div>
+                              
+
                             </div>
                             <button type="submit" class="btn">{{ __('messages.reset_password') }}</button>
                         </form>
@@ -535,7 +690,7 @@
     <footer class="footer">
         <p>{{ __('messages.footer_text') }}</p>
     </footer>
-
+ 
     <div id="cursorDot"></div>
 
     <script>
@@ -600,6 +755,68 @@
         }
         animate();
     </script>
+<script>
+// ===== أيقونة العين =====
+        function toggleEye(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            btn.querySelector('svg').innerHTML = isPassword
+                ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                   <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                   <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>`
+                : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                   <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/>`;
+        }
+
+        // ===== مؤشر قوة الباسورد =====
+     function checkStrength(val) {
+    const bars  = [1,2,3,4].map(n => document.getElementById('bar' + n));
+    const label = document.getElementById('strengthLabel');
+    if (!bars[0] || !label) return;
+
+    let score = 0;
+    if (val.length >= 8)                    score++;
+    if (/[A-Z]/.test(val))                  score++;
+  if (/[0-9]/.test(val))                    score++;
+    if (/[^A-Za-z0-9]/.test(val))           score++;
+
+    const colorMap = [
+        [],
+        ['active-weak'],
+        ['active-weak','active-weak'],
+        ['active-medium','active-medium','active-medium'],
+        ['active-strong','active-strong','active-strong','active-strong'],
+    ];
+
+    const labelMap = ['', 'Too weak', 'Weak', 'Fair', 'Strong'];
+    const colorStyle = ['', '#ff6b6b', '#ff6b6b', '#ffaa00', '#30d158'];
+
+    bars.forEach((bar, i) => {
+        bar.className = 'strength-bar';
+        if (colorMap[score][i]) bar.classList.add(colorMap[score][i]);
+    });
+
+    label.textContent = val.length ? labelMap[score] : '';
+    label.style.color = colorStyle[score] || '';
+
+    checkMatch();
+}
+
+        // ===== تطابق كلمتي المرور =====
+        function checkMatch() {
+            const newPass    = document.getElementById('newPassword');
+            const confirmPass = document.getElementById('confirmPassword');
+            const matchLabel  = document.getElementById('matchLabel');
+            if (!newPass || !confirmPass || !matchLabel) return;
+            if (!confirmPass.value) { matchLabel.textContent = ''; return; }
+
+            const match = newPass.value === confirmPass.value;
+            matchLabel.textContent = match ? '✓ Passwords match' : '✗ Passwords do not match';
+            matchLabel.style.color = match ? '#30d158' : '#ff6b6b';
+        }
+</script>
 
 <script>
         function showPageLoading() {
@@ -618,7 +835,7 @@
     e.preventDefault();
     document.getElementById('pageLoader').classList.add('active');
     setTimeout(() => {
-      window.location.href = {{env('FRONTEND_URL')}};
+  window.location.href = "{{ env('FRONTEND_URL') }}";
     }, 800);
   });
 </script>
@@ -627,3 +844,4 @@
 
 </body>
 </html>
+ 

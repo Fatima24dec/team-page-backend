@@ -233,11 +233,6 @@ public function updateRole(Request $request, User $user)
             ->with('error', __('messages.no_permission_edit'));
     }
 
-    // بس super_admin يقدر يرفع لـ admin
-    if ($request->role === 'admin' && !Auth::user()->isSuperAdmin()) {
-        return redirect()->route('team.dashboard')
-            ->with('error', __('messages.no_permission_edit'));
-    }
 
     $request->validate(['role' => 'required|in:admin,user']);
     $user->update(['role' => $request->role]);
